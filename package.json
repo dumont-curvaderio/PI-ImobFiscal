@@ -1,0 +1,34 @@
+{
+  "name": "imobfiscal",
+  "private": true,
+  "version": "0.0.1",
+  "description": "SaaS imobiliário brasileiro com módulo fiscal conforme LC 214/2025",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:local": "turbo dev --filter=web --filter=api",
+    "build": "turbo build",
+    "test": "turbo test",
+    "test:fiscal": "turbo test --filter=@imobfiscal/core",
+    "test:watch": "turbo test -- --watch",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,sql}\" --ignore-path .gitignore",
+    "typecheck": "turbo typecheck",
+    "db:generate": "turbo db:generate --filter=api",
+    "db:migrate": "turbo db:migrate --filter=api",
+    "db:seed": "turbo db:seed --filter=api",
+    "db:reset": "turbo db:reset --filter=api",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:types": "supabase gen types typescript --local > packages/core/src/types/supabase.ts"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.4.0"
+  },
+  "packageManager": "pnpm@11.3.0"
+}

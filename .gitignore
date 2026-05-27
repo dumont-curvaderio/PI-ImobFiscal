@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+.expo/
+out/
+
+# Turbo
+.turbo/
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.staging.local
+.env.beta.local
+.env.production.local
+.env.production
+
+# Secrets — NUNCA commitar
+*.pem
+*.pfx
+*.key
+*.p12
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+.vitest/
+
+# Prisma
+prisma/generated/
+
+# Type generated files (regenerate com pnpm supabase:types)
+packages/core/src/types/supabase.ts

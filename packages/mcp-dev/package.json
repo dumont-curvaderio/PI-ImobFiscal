@@ -1,0 +1,21 @@
+{
+  "name": "@imobfiscal/mcp-dev",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "MCP interno para desenvolvimento com Claude Code",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0",
+    "@imobfiscal/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "tsx": "^4.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

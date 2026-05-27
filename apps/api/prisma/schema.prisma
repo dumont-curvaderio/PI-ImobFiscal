@@ -1,0 +1,301 @@
+// ImobFiscal — Prisma Schema
+// Banco: PostgreSQL via Supabase (RLS multi-tenant)
+// NUNCA hard delete: usar deleted_at para dados fiscais (CLAUDE.md regra #6)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── TENANT ───────────────────────────────────────────────────────────────────
+
+model Imobiliaria {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cnpj       String    @unique @db.VarChar(14)
+  razao      String
+  nome_fantasia String?
+  email      String
+  telefone   String?
+  plano      PlanoAssinatura @default(BASICO)
+  created_at DateTime  @default(now()) @map("created_at")
+  updated_at DateTime  @updatedAt @map("updated_at")
+  deleted_at DateTime? @map("deleted_at")
+
+  imoveis    Imovel[]
+  contratos  ContratoLocacao[]
+  usuarios   Usuario[]
+
+  @@map("imobiliarias")
+}
+
+model Usuario {
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  imobiliaria_id String      @db.Uuid
+  supabase_uid   String      @unique
+  email          String
+  nome           String
+  perfil         PerfilUsuario @default(OPERADOR)
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+  deleted_at     DateTime?
+
+  imobiliaria    Imobiliaria @relation(fields: [imobiliaria_id], references: [id])
+
+  @@index([imobiliaria_id])
+  @@map("usuarios")
+}
+
+// ─── IMÓVEIS (M1) ────────────────────────────────────────────────────────────
+
+model Imovel {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  imobiliaria_id String       @db.Uuid
+  codigo         String
+  tipo           TipoImovel
+  finalidade     FinalidadeImovel @default(LOCACAO)
+  // Endereço
+  cep            String       @db.VarChar(8)
+  logradouro     String
+  numero         String
+  complemento    String?
+  bairro         String
+  cidade         String
+  uf             String       @db.Char(2)
+  municipio_ibge String?      @db.VarChar(7)
+  // Dados físicos
+  area_total     Decimal?     @db.Decimal(12, 2)
+  area_privativa Decimal?     @db.Decimal(12, 2)
+  quartos        Int?
+  vagas          Int?
+  // Dados fiscais — GCAP
+  valor_compra   Decimal?     @db.Decimal(15, 2)
+  data_compra    DateTime?    @db.Date
+  // Timestamps
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+  deleted_at     DateTime?
+
+  imobiliaria    Imobiliaria  @relation(fields: [imobiliaria_id], references: [id])
+  proprietarios  ImoveisPorProprietario[]
+  contratos      ContratoLocacao[]
+  benfeitorias   Benfeitoria[]
+
+  @@unique([imobiliaria_id, codigo])
+  @@index([imobiliaria_id])
+  @@index([deleted_at])
+  @@map("imoveis")
+}
+
+model Proprietario {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  imobiliaria_id String    @db.Uuid
+  tipo_pessoa    TipoPessoa
+  cpf_cnpj       String    @db.VarChar(14)
+  nome           String
+  email          String?
+  telefone       String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime?
+
+  imoveis        ImoveisPorProprietario[]
+
+  @@index([imobiliaria_id])
+  @@map("proprietarios")
+}
+
+model ImoveisPorProprietario {
+  imovel_id       String   @db.Uuid
+  proprietario_id String   @db.Uuid
+  percentual      Decimal  @db.Decimal(5, 2) @default(100)
+
+  imovel          Imovel      @relation(fields: [imovel_id], references: [id])
+  proprietario    Proprietario @relation(fields: [proprietario_id], references: [id])
+
+  @@id([imovel_id, proprietario_id])
+  @@map("imoveis_proprietarios")
+}
+
+model Benfeitoria {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  imovel_id      String           @db.Uuid
+  descricao      String
+  valor          Decimal          @db.Decimal(15, 2)
+  data           DateTime         @db.Date
+  nivel_evidencia NivelEvidencia
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+  deleted_at     DateTime?
+
+  imovel         Imovel           @relation(fields: [imovel_id], references: [id])
+
+  @@index([imovel_id])
+  @@map("benfeitorias")
+}
+
+// ─── CONTRATOS (M2) ──────────────────────────────────────────────────────────
+
+model ContratoLocacao {
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  imobiliaria_id    String         @db.Uuid
+  imovel_id         String         @db.Uuid
+  tipo_locacao      TipoLocacao
+  status            StatusContrato @default(RASCUNHO)
+  // Locatário
+  locatario_tipo    TipoPessoa
+  locatario_cpf_cnpj String       @db.VarChar(14)
+  locatario_nome    String
+  // Financeiro
+  valor_aluguel     Decimal        @db.Decimal(15, 2)
+  dia_vencimento    Int
+  // Enquadramento fiscal automático
+  enquadramento_ibs_cbs EnquadramentoIBSCBS?
+  contrato_anterior_art487 Boolean @default(false) // RN-005
+  // Vigência
+  data_inicio       DateTime       @db.Date
+  data_fim          DateTime?      @db.Date
+  prazo_meses       Int?
+  // Timestamps
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+  deleted_at        DateTime?
+
+  imobiliaria       Imobiliaria    @relation(fields: [imobiliaria_id], references: [id])
+  imovel            Imovel         @relation(fields: [imovel_id], references: [id])
+  notas_fiscais     NotaFiscal[]
+
+  @@index([imobiliaria_id])
+  @@index([deleted_at])
+  @@map("contratos_locacao")
+}
+
+// ─── FISCAL (M3) ─────────────────────────────────────────────────────────────
+
+model NotaFiscal {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  imobiliaria_id  String          @db.Uuid
+  contrato_id     String          @db.Uuid
+  numero          String?
+  serie           String?
+  chave_acesso    String?         @unique
+  status          StatusNFe       @default(AGUARDANDO)
+  // Valores
+  valor_servico   Decimal         @db.Decimal(15, 2)
+  valor_ibs       Decimal         @db.Decimal(15, 4) // informativo 2026
+  valor_cbs       Decimal         @db.Decimal(15, 4) // informativo 2026
+  recolhimento_obrigatorio Boolean @default(false)   // false até 2026
+  // SEFAZ
+  ambiente_sefaz  AmbienteSEFAZ   @default(HOMOLOGACAO)
+  tentativas      Int             @default(0)
+  proximo_retry   DateTime?
+  erro_sefaz      String?
+  // Timestamps
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  deleted_at      DateTime?
+
+  contrato        ContratoLocacao @relation(fields: [contrato_id], references: [id])
+
+  @@index([imobiliaria_id])
+  @@index([status])
+  @@map("notas_fiscais")
+}
+
+model AliquotaVigente {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ano            Int
+  tipo_operacao  String   @db.VarChar(50)
+  uf             String?  @db.Char(2)
+  municipio_ibge String?  @db.VarChar(7)
+  aliquota_ibs   Decimal  @db.Decimal(8, 6)
+  aliquota_cbs   Decimal  @db.Decimal(8, 6)
+  fator_reducao  Decimal  @db.Decimal(5, 4)
+  redutor_social Decimal? @db.Decimal(10, 2)
+  recolhimento_obrigatorio Boolean @default(false)
+  vigencia_inicio DateTime @db.Date
+  vigencia_fim    DateTime? @db.Date
+
+  @@unique([ano, tipo_operacao, uf, municipio_ibge])
+  @@index([ano])
+  @@map("aliquotas_vigentes")
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+enum PlanoAssinatura {
+  BASICO
+  PROFISSIONAL
+  ENTERPRISE
+}
+
+enum PerfilUsuario {
+  ADMIN
+  GERENTE
+  OPERADOR
+  FINANCEIRO
+  READONLY
+}
+
+enum TipoImovel {
+  RESIDENCIAL
+  COMERCIAL
+  RURAL
+  MISTO
+}
+
+enum FinalidadeImovel {
+  LOCACAO
+  VENDA
+  VENDA_E_LOCACAO
+}
+
+enum TipoPessoa {
+  PF
+  PJ
+}
+
+enum NivelEvidencia {
+  COMPROVADO   // NF com CNPJ válido
+  RECIBO       // recibo com CPF
+  DECLARADO    // sem documento — risco alto
+}
+
+enum TipoLocacao {
+  RESIDENCIAL_LONGA
+  COMERCIAL
+  SHORT_STAY
+  RURAL
+}
+
+enum StatusContrato {
+  RASCUNHO
+  ATIVO
+  RESCINDIDO
+  ENCERRADO
+}
+
+enum EnquadramentoIBSCBS {
+  CONTRIBUINTE_PLENO
+  CONTRIBUINTE_REDUCAO_30
+  CONTRIBUINTE_SHORT_STAY
+  ISENTO_RESIDENCIAL
+  ISENTO_NAO_CONTRIBUINTE
+  REGIME_ANTIGO_ART487
+}
+
+enum StatusNFe {
+  AGUARDANDO
+  PROCESSANDO
+  AUTORIZADA
+  REJEITADA
+  CANCELADA
+}
+
+enum AmbienteSEFAZ {
+  HOMOLOGACAO
+  PRODUCAO
+}
