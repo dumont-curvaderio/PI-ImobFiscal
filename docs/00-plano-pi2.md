@@ -7,22 +7,62 @@
 ## 1. Decisão de Escopo
 
 ### O que é este projeto para o PI 2
-Sistema web de gestão imobiliária com CRUD completo de Imóveis e Proprietários, autenticação de usuário e persistência em PostgreSQL. Apresentado como **"Sistema de Gestão Imobiliária"**.
+
+Sistema web de gestão imobiliária com CRUD de Locadores, Imóveis e Contratos de Locação,
+autenticação de usuário, cálculo básico de IBS/CBS (Reforma Tributária) e persistência em
+PostgreSQL. Apresentado como **"ImobFiscal — Sistema de Gestão Imobiliária"**.
+
+### Stack tecnológica (definida e fixada)
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React + JavaScript (Vite) |
+| Backend principal | Node.js + Express + JavaScript |
+| Calculadora tributária (bônus) | Python + Flask — chamado pelo backend Node |
+| Banco de dados | PostgreSQL |
+| Deploy frontend | Vercel |
+| Deploy backend | Railway |
+
+> **Python:** disciplina paralela — o módulo `CalculadoraImposto` do Diagrama de Classes
+> será implementado em Python/Flask, chamado via HTTP pelo backend Node. Se não for exigido
+> na entrega do PI, entra como diferencial.
+
+### Estrutura de pastas no repositório
+
+```
+imobfiscal/
+├── frontend/          ← React + JavaScript (Vite)
+├── backend/           ← Node.js + Express
+├── database/          ← schema.sql, seed.sql, README com DER Mermaid
+├── docs/              ← documentação técnica do PI
+└── README.md          ← template FATEC preenchido
+```
 
 ### O que está FORA do escopo do PI 2 (não implementar)
-- Cálculos fiscais (IBS/CBS, NF-e, SEFAZ, carnê-leão, GCAP)
-- Multi-tenancy avançado (RLS, `@CurrentTenant` decorator)
-- Módulos: contratos, financeiro, notas fiscais
-- Integrações externas (Focus NFe, Asaas, Clicksign)
+
+- Integração real com SEFAZ / emissão de NF-e
+- Boleto bancário real (simular com flag no banco)
+- Módulo mobile (Expo)
+- Multi-tenancy avançado (RLS)
+- Geração de PDF de contrato
 
 > Regra de ouro: se uma tarefa não aparece no checklist da seção 5, **não faça**.
 
+### Entidades (conforme Diagrama de Classes do professor)
+
+| Classe | Atributos principais |
+|---|---|
+| Locador | id, nome, cpf, cnpj, regime_tributario (PF/PJ/Simples) |
+| Imovel | id, endereco, tipo_uso (Residencial/Comercial), valor_venal, locador_id |
+| ContratoLocacao | id, valor_aluguel, data_inicio, dia_vencimento, locador_id, locatario_nome |
+| NotaFiscal | id, data_emissao, valor_bruto, valor_liquido, aliquota_ibs, aliquota_cbs, contrato_id |
+
 ### Decisões técnicas fixas (não mudar no meio do semestre)
-- **Service chama Prisma direto** — sem repository pattern, sem CQRS
-- **JWT Auth Guard** nas rotas (sem decorator customizado de tenant)
-- **`lib/api.ts`** com toggle mock/real para desacoplar frontend do backend
+
+- **Express direto com pg** — sem ORM, SQL puro para o professor ver o banco
+- **Soft delete** (`deleted_at`) em todas as tabelas com histórico
+- **JWT** para autenticação (jsonwebtoken + middleware simples)
 - **DER em Mermaid** dentro de `database/README.md` (renderiza no GitHub)
-- **`schema.prisma`** é a fonte de verdade única — `schema.sql` é derivado dele
 
 ---
 
@@ -30,76 +70,68 @@ Sistema web de gestão imobiliária com CRUD completo de Imóveis e Proprietári
 
 | Sem | Foco | Entregáveis concretos |
 |-----|------|-----------------------|
-| **1** ✅ | Fundação do repositório | Repo GitHub público criado + push inicial + README.md raiz |
-| **2** | Escopo | `docs/01-escopo.md` — o que o sistema faz, quem usa, fora de escopo |
-| **3** | Requisitos | `docs/02-requisitos.md` — tabela de RF e RNF |
-| **4** | UML | `docs/03-casos-de-uso.md` (Mermaid) + `docs/04-diagrama-classes.md` (Mermaid) |
-| **5** | Banco — scripts | `database/schema.sql` (gerado do Prisma) + `database/seed.sql` |
-| **6** | Banco — docs | `docs/05-dicionario-dados.md` + `database/README.md` com DER Mermaid. **Marco: /database 100% completo** |
-| **7** | Backend Imóvel pt.1 | JWT Auth Guard + `CreateImovelDto` + `UpdateImovelDto` + `POST /imoveis` |
-| **8** | Backend Imóvel pt.2 | `PUT /imoveis/:id` + `DELETE /imoveis/:id` (soft delete) + GETs filtram `deleted_at IS NULL`. **Marco: CRUD Imóvel completo na API** |
-| **9** | Frontend — base + login | 6 componentes base + `lib/api.ts` (mock) + página de login |
-| **10** | Frontend — Imóvel | Páginas: listagem → criar → detalhes (virando mock para real) |
-| **11** | Frontend Imóvel pt.2 + Backend Proprietário | Páginas: editar + exclusão. CRUD de Proprietário no backend. **Marco: CRUD Imóvel 100% ponta a ponta** |
-| **12** | Proprietário frontend + Testes | Páginas de Proprietário + `docs/06-plano-testes.md` + 3 testes unitários |
-| **13** | 🛡️ Buffer | Corrigir bugs, ajustar UI, verificar mock virado para real, `pnpm test` verde |
-| **14** | Entrega | README final + `docs/07-consideracoes-finais.md` + conferir checklist completo |
+| **1** ✅ | Fundação | Repo GitHub público + estrutura de pastas + README.md |
+| **2** | Escopo | `docs/01-escopo.md` |
+| **4** | Requisitos + UML | `docs/02-requisitos.md` + `docs/03-casos-de-uso.md` + `docs/04-diagrama-classes.md` |
+| **6** | Banco completo | `database/schema.sql` + `database/seed.sql` + `database/README.md` (DER) + `docs/05-dicionario-dados.md` |
+| **7** | Backend pt.1 | Setup Express + conexão PostgreSQL + CRUD Locador |
+| **8** | Backend pt.2 | CRUD Imovel + ContratoLocacao + JWT Auth |
+| **9** | Frontend base | Setup Vite/React + componentes base + login |
+| **10** | Frontend Locador + Imovel | Telas: listagem, criar, editar, excluir |
+| **11** | Frontend Contrato + integração | Telas de contrato + lib/api.js integrada ao backend |
+| **12** | Testes + documentação | `docs/06-plano-testes.md` + 3 testes funcionais documentados |
+| **13** | 🛡️ Buffer | Corrigir bugs, garantir CRUD ponta-a-ponta funcionando |
+| **14** | Entrega final | README completo + `docs/07-consideracoes-finais.md` + checklist |
 | **15** | Pitch | Demo ao vivo + diagramas + slide "o que aprendi" |
-
-> A semana 13 é folga proposital — se algo atrasar, ela é o colchão. Não preencher com features novas.
 
 ---
 
 ## 3. Ordem de Implementação Técnica (sem bloqueios)
 
 ```
-PASSO 1 — Banco (sem 5-6):
-  1.1  Confirmar schema.prisma (já 100%)
-  1.2  Gerar database/schema.sql a partir do Prisma
-  1.3  Criar database/seed.sql com dados fictícios
+PASSO 1 — Banco (sem 6):
+  1.1  Definir schema no PostgreSQL (locadores, imoveis, contratos, notas_fiscais)
+  1.2  Escrever database/schema.sql com comentários
+  1.3  Escrever database/seed.sql com dados fictícios coerentes
 
-PASSO 2 — Backend Imóvel (sem 7-8), uma operação de cada vez:
-  2.1  JWT Auth Guard nas rotas             ← POST sem guard = vulnerável
-  2.2  CreateImovelDto + UpdateImovelDto    ← validar antes de aceitar dados
-  2.3  POST /imoveis                        ← criar
-  2.4  PUT  /imoveis/:id                   ← editar
-  2.5  DELETE /imoveis/:id (soft delete)   ← excluir
-  2.6  Atualizar GET e GET/:id             ← filtrar WHERE deleted_at IS NULL
+PASSO 2 — Backend Node/Express (sem 7-8):
+  2.1  Setup: express + pg + cors + dotenv + jsonwebtoken
+  2.2  Conexão com PostgreSQL (pool)
+  2.3  Rotas de auth: POST /auth/login
+  2.4  Middleware JWT (verificar token em rotas protegidas)
+  2.5  CRUD Locador: GET/POST/PUT/DELETE /locadores
+  2.6  CRUD Imovel: GET/POST/PUT/DELETE /imoveis
+  2.7  CRUD Contrato: GET/POST/PUT/DELETE /contratos
 
-PASSO 3 — Frontend (sem 9-11), contra MOCK primeiro:
-  3.1  6 componentes base (Button, Input+Label, Card, PageHeader, Spinner, ConfirmDialog)
-  3.2  lib/api.ts em modo MOCK
-  3.3  Todas as páginas funcionando contra mock
-  3.4  Virar para REAL endpoint por endpoint, na ordem em que o backend fica pronto
+PASSO 3 — Frontend React/Vite (sem 9-11):
+  3.1  Setup Vite + React + estrutura de pastas
+  3.2  lib/api.js — funções fetch para cada recurso
+  3.3  Componentes base: Button, Input, Table, Modal
+  3.4  Telas: login, dashboard, locadores, imóveis, contratos
+  3.5  Conectar ao backend real
 
-PASSO 4 — Proprietário (sem 11-12), mesmo molde do Imóvel
-
-PASSO 5 — Testes (sem 12), depois que CRUD funciona
+PASSO 4 — Testes e ajustes (sem 12-13)
 ```
-
-**Regra anti-bloqueio:** frontend nunca espera o backend (começa no mock). As duas frentes só se encontram no passo 3.4.
 
 ---
 
 ## 4. Riscos e Mitigações
 
-### 🔴 Risco 1 — Soft delete esquecido nos GETs existentes
-Adicionar `DELETE` com `deleted_at` mas o `GET /imoveis` continuar mostrando registros excluídos.
-- **Mitigação:** o passo 2.6 está amarrado ao 2.5. Não fechar a semana 8 sem o GET filtrando `deleted_at IS NULL`. Um dos 3 testes unitários verifica exatamente isto.
+### 🔴 Risco 1 — Soft delete esquecido nos GETs
+Registros excluídos aparecem na listagem porque o `WHERE deleted_at IS NULL` foi esquecido.
+- **Mitigação:** toda query de listagem é escrita junto com o filtro desde o início.
 
-### 🔴 Risco 2 — Gold-plating com features fiscais fora do escopo
-IBS/CBS, NFe, SEFAZ, RLS avançado — nada disso vale nota no PI 2 e consome semanas.
-- **Mitigação:** seção 1 descarta explicitamente. Se sentir vontade de "adicionar o módulo fiscal", releia esta linha e volte ao checklist da seção 5.
+### 🔴 Risco 2 — Gold-plating fiscal
+Tentar implementar NF-e real, boleto bancário, SEFAZ — zero valor no PI 2.
+- **Mitigação:** cálculo IBS/CBS fica em Python/Flask como endpoint separado; o restante é simulado.
 
-### 🟡 Risco 3 — Divergência entre schema.prisma e schema.sql/DER entregues
-Mudar o Prisma depois de gerar o SQL deixa a entrega /database desatualizada.
-- **Mitigação:** `schema.prisma` é fonte de verdade única. Qualquer mudança no Prisma → regenerar `schema.sql` e DER Mermaid no mesmo dia.
+### 🟡 Risco 3 — Schema.sql diverge do banco em uso
+Alterar a tabela sem atualizar o arquivo SQL deixa a entrega inconsistente.
+- **Mitigação:** qualquer ALTER TABLE → atualizar schema.sql no mesmo commit.
 
 ---
 
 ## 5. Checklist de Done (PI 2)
-
-Responda sim/não. Se algum for "não" na semana 14, não está pronto.
 
 ### Repositório
 - [ ] GitHub público em `github.com/dumont-curvaderio/PI-ImobFiscal`
@@ -108,42 +140,37 @@ Responda sim/não. Se algum for "não" na semana 14, não está pronto.
 ### /docs (obrigatório pelo manual)
 - [ ] `01-escopo.md`
 - [ ] `02-requisitos.md` com RF e RNF em tabela
-- [ ] `03-casos-de-uso.md` com diagrama de Caso de Uso
-- [ ] `03-diagrama-sequencia.md` (já existe ✅)
-- [ ] `04-diagrama-classes.md` com diagrama UML de Classes
+- [ ] `03-casos-de-uso.md` com diagrama Mermaid ✅ (existe)
+- [ ] `03-diagrama-sequencia.md` ✅ (existe)
+- [ ] `04-diagrama-classes.md` com diagrama UML Mermaid
 - [ ] `05-dicionario-dados.md` com tabela de colunas
 - [ ] `06-plano-testes.md`
 - [ ] `07-consideracoes-finais.md`
 
 ### /database (obrigatório pelo manual)
-- [ ] `schema.sql` derivado do Prisma, com comentários
+- [ ] `schema.sql` com DDL comentado
 - [ ] `seed.sql` com dados fictícios coerentes
-- [ ] `README.md` com DER em Mermaid (renderiza no GitHub)
-- [ ] `schema.sql` bate com o `schema.prisma` atual
+- [ ] `README.md` com DER em Mermaid
 
 ### Backend — CRUD completo
-- [ ] Rotas protegidas por JWT Auth Guard
-- [ ] `POST /imoveis` cria e persiste no PostgreSQL
-- [ ] `GET /imoveis` lista (filtra `deleted_at IS NULL`)
-- [ ] `GET /imoveis/:id` retorna um (filtra `deleted_at IS NULL`)
-- [ ] `PUT /imoveis/:id` edita
-- [ ] `DELETE /imoveis/:id` faz soft delete
-- [ ] CRUD de Proprietário no mesmo padrão
+- [ ] POST/GET/PUT/DELETE `/locadores`
+- [ ] POST/GET/PUT/DELETE `/imoveis`
+- [ ] POST/GET/PUT/DELETE `/contratos`
+- [ ] Rotas protegidas por JWT
+- [ ] Soft delete em todas as tabelas (filtra `deleted_at IS NULL`)
 
-### Frontend — integração front-back
-- [ ] Página de login funcional contra backend real
-- [ ] Listagem de imóveis com dados reais do banco
-- [ ] Criar imóvel pela tela persiste no banco
-- [ ] Página de detalhes do imóvel
-- [ ] Editar imóvel pela tela
-- [ ] Excluir imóvel com confirmação
-- [ ] `lib/api.ts` 100% em modo "real" (zero mock na demo)
+### Frontend — integração
+- [ ] Tela de login funcional
+- [ ] CRUD de Locadores completo na UI
+- [ ] CRUD de Imóveis completo na UI
+- [ ] CRUD de Contratos completo na UI
+- [ ] Deploy no Vercel funcionando
 
 ### Testes
-- [ ] Pelo menos 3 testes unitários
-- [ ] `pnpm test` roda verde
+- [ ] Pelo menos 3 testes funcionais documentados em `docs/06-plano-testes.md`
+- [ ] Prints ou evidências dos testes
 
 ### Pitch (semana 15)
-- [ ] Demo do CRUD funcionando ao vivo
+- [ ] Demo CRUD ao vivo
 - [ ] Diagramas exibidos
 - [ ] Slide "o que aprendi neste semestre"
