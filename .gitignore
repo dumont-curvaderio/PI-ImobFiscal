@@ -1,3 +1,13 @@
+# Claude Code — configurações pessoais do desenvolvedor, não subir ao GitHub
+.claude/
+CLAUDE.md
+
+# Pacote interno de desenvolvimento (MCP server) — não relevante para o projeto
+packages/mcp-dev/
+
+# Arquivos compactados temporários
+*.zip
+
 # Dependencies
 node_modules/
 .pnpm-store/

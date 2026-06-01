@@ -1,0 +1,10 @@
+sequenceDiagram
+    actor Locatario as ClienteLocatário
+    participant S as Sistema
+    participant Calc as CalculadoraReformaTributaria
+
+    Locatario->>S: solicitarBoleto(contratoId)
+    S->>Calc: calcular(valorAluguel=2000, tipoImovel=RESIDENCIAL, ano=2026)
+    Note over Calc: valorAluguel <= R$2.500 — RN-002 aplica isencao
+    Calc-->>S: isento=true, motivoIsencao="RN-002", valorIBS=0, valorCBS=0
+    S-->>Locatario: Boleto gerado sem tributos (isencao RN-002)

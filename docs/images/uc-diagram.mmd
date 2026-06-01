@@ -1,0 +1,29 @@
+graph TB
+    Locador(["👤 Locador (Proprietário)"])
+    Locatario(["👤 ClienteLocatário"])
+    Adm(["👤 AdmImobiliária"])
+
+    subgraph sistema["Sistema ImobFiscal"]
+        UC01("UC01 — Cadastrar Imóvel")
+        UC02("UC02 — Consultar Imóvel")
+        UC03("UC03 — Gerar Boleto")
+        UC04("UC04 — Cadastrar Dados do Cliente")
+        UC05("UC05 — Cadastrar Negociação")
+        UC06("UC06 — Analisar Documentação")
+        UC07("UC07 — Gerar Contrato")
+        UC08("UC08 — Solicitar Assinatura")
+        UC09("UC09 — Calcular IBS/CBS")
+        UC10("UC10 — Emitir Nota Fiscal")
+    end
+
+    Locador --> UC01
+    Locatario --> UC02
+    Locatario --> UC03
+    Adm --> UC04
+    Adm --> UC05
+    Adm --> UC06
+    Adm --> UC07
+    Adm --> UC08
+    UC03 -. "<<include>>" .-> UC09
+    UC07 -. "<<include>>" .-> UC09
+    UC09 -. "<<extend>>" .-> UC10

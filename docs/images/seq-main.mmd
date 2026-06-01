@@ -1,0 +1,21 @@
+sequenceDiagram
+    actor Locatario as ClienteLocatário
+    participant S as Sistema
+    participant C as ContratoLocacao
+    participant Calc as CalculadoraReformaTributaria
+    participant NF as NotaFiscal
+    participant Banco as IntegracaoBancaria
+
+    Locatario->>S: solicitarBoleto(contratoId)
+    S->>C: buscarContrato(contratoId)
+    C-->>S: valorAluguel, diaVencimento, locadorId, tipoImovel
+    S->>Calc: calcular(valorAluguel, tipoImovel, ano=2026)
+    Note over Calc: RN-003: fator de reducao 30% (residencial)<br/>RN-002: isento se aluguel <= R$2.500
+    Calc->>Calc: calcularIBS(valorAluguel, aliquota=0.001)
+    Calc->>Calc: calcularCBS(valorAluguel, aliquota=0.009)
+    Calc-->>S: valorIBS, valorCBS, valorLiquido, recolhimentoObrigatorio=false
+    S->>NF: emitir(valorBruto, aliquotaIBS, aliquotaCBS, dataEmissao)
+    NF-->>S: notaFiscal com id, dataEmissao, valorBruto, valorLiquido
+    S->>Banco: gerarBoleto(valorLiquido, diaVencimento, splitPayment=false)
+    Banco-->>S: codigoBoleto, linhaDigitavel, qrCodePix
+    S-->>Locatario: boleto, qrCodePix, notaFiscal
