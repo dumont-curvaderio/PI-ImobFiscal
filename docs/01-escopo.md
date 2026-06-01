@@ -90,9 +90,9 @@ Os itens abaixo existem no produto final planejado, mas **não serão implementa
 | Camada | Tecnologia |
 |---|---|
 | Frontend | React + JavaScript (Vite) |
-| Backend API | Node.js + Express |
-| Calculadora Tributária | Python + Flask (módulo separado) |
+| Backend API | Spring Boot + Java |
 | Banco de Dados | PostgreSQL |
+| Autenticação | JWT (Spring Security) |
 | Deploy | Vercel (frontend) + Railway (backend) |
 
 ---
@@ -104,11 +104,7 @@ Os itens abaixo existem no produto final planejado, mas **não serão implementa
         |
         | HTTP/HTTPS
         v
-[Frontend — React/Vite]  ←→  [Backend Node/Express]  ←→  [PostgreSQL]
-                                       |
-                                       | HTTP interno
-                                       v
-                              [Calculadora Python/Flask]
+[Frontend — React/Vite]  ←→  [Backend Spring Boot]  ←→  [PostgreSQL]
 ```
 
 ---

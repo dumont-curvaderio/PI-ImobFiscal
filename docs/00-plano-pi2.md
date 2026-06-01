@@ -17,15 +17,11 @@ PostgreSQL. Apresentado como **"ImobFiscal — Sistema de Gestão Imobiliária"*
 | Camada | Tecnologia |
 |---|---|
 | Frontend | React + JavaScript (Vite) |
-| Backend principal | Node.js + Express + JavaScript |
-| Calculadora tributária (bônus) | Python + Flask — chamado pelo backend Node |
+| Backend | Spring Boot + Java |
 | Banco de dados | PostgreSQL |
+| Autenticação | JWT (Spring Security) |
 | Deploy frontend | Vercel |
 | Deploy backend | Railway |
-
-> **Python:** disciplina paralela — o módulo `CalculadoraImposto` do Diagrama de Classes
-> será implementado em Python/Flask, chamado via HTTP pelo backend Node. Se não for exigido
-> na entrega do PI, entra como diferencial.
 
 ### Estrutura de pastas no repositório
 
@@ -94,14 +90,16 @@ PASSO 1 — Banco (sem 6):
   1.2  Escrever database/schema.sql com comentários
   1.3  Escrever database/seed.sql com dados fictícios coerentes
 
-PASSO 2 — Backend Node/Express (sem 7-8):
-  2.1  Setup: express + pg + cors + dotenv + jsonwebtoken
-  2.2  Conexão com PostgreSQL (pool)
-  2.3  Rotas de auth: POST /auth/login
-  2.4  Middleware JWT (verificar token em rotas protegidas)
-  2.5  CRUD Locador: GET/POST/PUT/DELETE /locadores
-  2.6  CRUD Imovel: GET/POST/PUT/DELETE /imoveis
-  2.7  CRUD Contrato: GET/POST/PUT/DELETE /contratos
+PASSO 2 — Backend Spring Boot (sem 7-8):
+  2.1  Setup: Spring Web + Spring Data JPA + PostgreSQL Driver + Spring Security
+  2.2  Configurar application.properties (datasource, jwt.secret)
+  2.3  Entidades JPA: Locador, Imovel, ContratoLocacao, NotaFiscal
+  2.4  Repositories: JpaRepository para cada entidade
+  2.5  Auth: POST /auth/login → retorna JWT
+  2.6  JwtFilter (Spring Security) — protege rotas autenticadas
+  2.7  CRUD Locador: GET/POST/PUT/DELETE /locadores
+  2.8  CRUD Imovel: GET/POST/PUT/DELETE /imoveis
+  2.9  CRUD Contrato: GET/POST/PUT/DELETE /contratos
 
 PASSO 3 — Frontend React/Vite (sem 9-11):
   3.1  Setup Vite + React + estrutura de pastas

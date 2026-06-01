@@ -54,10 +54,9 @@ engenharia de software, desenvolvimento web e banco de dados relacional.
 | Camada | Tecnologia |
 |---|---|
 | Frontend | React 18 + JavaScript + Vite |
-| Backend API | Node.js + Express + JavaScript |
-| Calculadora Tributária | Python 3.12 + Flask |
+| Backend API | Spring Boot + Java |
 | Banco de Dados | PostgreSQL 15 |
-| Autenticação | JWT (JSON Web Token) |
+| Autenticação | JWT (Spring Security) |
 | Deploy Frontend | Vercel |
 | Deploy Backend | Railway |
 | Versionamento | Git + GitHub |
@@ -90,9 +89,10 @@ imobfiscal/
 ## 6. Como Rodar Localmente
 
 ### Pré-requisitos
-- Node.js 20+
-- Python 3.12+
+- Java 21+
+- Maven 3.9+ (ou usar o Maven Wrapper `./mvnw` incluído no projeto)
 - PostgreSQL 15+
+- Node.js 20+
 
 ### Banco de Dados
 
@@ -103,13 +103,13 @@ psql -U postgres -d imobfiscal -f database/schema.sql
 psql -U postgres -d imobfiscal -f database/seed.sql
 ```
 
-### Backend (Node.js)
+### Backend (Spring Boot)
 
 ```bash
 cd backend
-npm install
-cp .env.example .env    # preencher DATABASE_URL e JWT_SECRET
-npm run dev             # sobe em http://localhost:3001
+cp src/main/resources/application.example.properties src/main/resources/application.properties
+# preencher spring.datasource.url, username, password e jwt.secret
+./mvnw spring-boot:run    # sobe em http://localhost:8080
 ```
 
 ### Frontend (React)
@@ -117,7 +117,7 @@ npm run dev             # sobe em http://localhost:3001
 ```bash
 cd frontend
 npm install
-cp .env.example .env    # preencher VITE_API_URL=http://localhost:3001
+cp .env.example .env    # preencher VITE_API_URL=http://localhost:8080
 npm run dev             # abre em http://localhost:5173
 ```
 
