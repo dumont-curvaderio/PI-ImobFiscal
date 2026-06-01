@@ -3,13 +3,21 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import RotaPrivada from './components/RotaPrivada.jsx'
+import Layout from './components/Layout.jsx'
 
 // Importa todas as páginas
 import LoginPage from './pages/LoginPage.jsx'
 import CadastroPage from './pages/CadastroPage.jsx'
+import DashboardPage from './pages/DashboardPage.jsx'
 import ImoveisPage from './pages/ImoveisPage.jsx'
 import ImovelFormPage from './pages/ImovelFormPage.jsx'
 import ImovelDetalhePage from './pages/ImovelDetalhePage.jsx'
+import LocadoresPage from './pages/LocadoresPage.jsx'
+import LocadorFormPage from './pages/LocadorFormPage.jsx'
+import ContratosPage from './pages/ContratosPage.jsx'
+import ContratoFormPage from './pages/ContratoFormPage.jsx'
+import SimuladorFiscalPage from './pages/SimuladorFiscalPage.jsx'
+import BoletosPage from './pages/BoletosPage.jsx'
 
 function App() {
   return (
@@ -22,12 +30,25 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<CadastroPage />} />
 
-          {/* Rotas privadas — só acessíveis com login */}
+          {/* Rotas privadas — só acessíveis com login
+              Layout envolve todas elas com a navbar do sistema */}
+          <Route
+            path="/dashboard"
+            element={
+              <RotaPrivada>
+                <Layout>
+                  <DashboardPage />
+                </Layout>
+              </RotaPrivada>
+            }
+          />
           <Route
             path="/imoveis"
             element={
               <RotaPrivada>
-                <ImoveisPage />
+                <Layout>
+                  <ImoveisPage />
+                </Layout>
               </RotaPrivada>
             }
           />
@@ -35,7 +56,9 @@ function App() {
             path="/imoveis/novo"
             element={
               <RotaPrivada>
-                <ImovelFormPage />
+                <Layout>
+                  <ImovelFormPage />
+                </Layout>
               </RotaPrivada>
             }
           />
@@ -43,7 +66,9 @@ function App() {
             path="/imoveis/:id/editar"
             element={
               <RotaPrivada>
-                <ImovelFormPage />
+                <Layout>
+                  <ImovelFormPage />
+                </Layout>
               </RotaPrivada>
             }
           />
@@ -51,13 +76,23 @@ function App() {
             path="/imoveis/:id"
             element={
               <RotaPrivada>
-                <ImovelDetalhePage />
+                <Layout>
+                  <ImovelDetalhePage />
+                </Layout>
               </RotaPrivada>
             }
           />
 
-          {/* Rota raiz redireciona para a lista de imóveis */}
-          <Route path="/" element={<Navigate to="/imoveis" replace />} />
+          <Route path="/locadores" element={<RotaPrivada><Layout><LocadoresPage /></Layout></RotaPrivada>} />
+          <Route path="/locadores/novo" element={<RotaPrivada><Layout><LocadorFormPage /></Layout></RotaPrivada>} />
+          <Route path="/locadores/:id/editar" element={<RotaPrivada><Layout><LocadorFormPage /></Layout></RotaPrivada>} />
+          <Route path="/contratos" element={<RotaPrivada><Layout><ContratosPage /></Layout></RotaPrivada>} />
+          <Route path="/contratos/novo" element={<RotaPrivada><Layout><ContratoFormPage /></Layout></RotaPrivada>} />
+          <Route path="/simulador-fiscal" element={<RotaPrivada><Layout><SimuladorFiscalPage /></Layout></RotaPrivada>} />
+          <Route path="/boletos" element={<RotaPrivada><Layout><BoletosPage /></Layout></RotaPrivada>} />
+
+          {/* Rota raiz redireciona para o dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
           {/* Qualquer URL desconhecida vai para login */}
           <Route path="*" element={<Navigate to="/login" replace />} />

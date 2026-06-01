@@ -1,0 +1,112 @@
+/* ============================================================
+   ImobFiscal — Tema Visual
+   Paleta baseada em pi-fatec.vercel.app
+   ============================================================ */
+
+/* 1. Variáveis de cor do projeto */
+:root {
+  --cor1: #2D3E40;   /* escuro primário: navbar, cabeçalhos */
+  --cor2: #387373;   /* teal: botões, ícones, destaques */
+  --cor3: #93BFB7;   /* teal suave: textos secundários na navbar */
+  --cor4: #97A6A0;   /* cinza-verde: bordas, divisores */
+  --cor5: #E4F2E7;   /* menta clara: fundo da página */
+
+  /* Sobrescreve o azul padrão do Bootstrap pelo teal do projeto */
+  --bs-primary: #387373;
+  --bs-primary-rgb: 56, 115, 115;
+  --bs-link-color: #387373;
+  --bs-link-hover-color: #2D3E40;
+  --bs-body-bg: #E4F2E7;
+  --bs-body-color: #2D3E40;
+}
+
+/* 2. Tipografia global */
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* 3. Navbar do sistema (páginas autenticadas) */
+.navbar-imobfiscal {
+  background-color: var(--cor1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-imobfiscal .navbar-usuario {
+  color: var(--cor3);
+  font-size: 0.875rem;
+}
+
+/* 4. Botão primário — teal no lugar do azul padrão */
+.btn-primary {
+  --bs-btn-bg: #387373;
+  --bs-btn-border-color: #387373;
+  --bs-btn-hover-bg: #2e6060;
+  --bs-btn-hover-border-color: #2e6060;
+  --bs-btn-active-bg: #2D3E40;
+  --bs-btn-active-border-color: #2D3E40;
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-bg: #387373;
+  --bs-btn-disabled-border-color: #387373;
+}
+
+/* 5. Cabeçalho da tabela */
+.table-dark {
+  --bs-table-bg: #2D3E40;
+}
+
+/* 6. Cards com bordas suaves e transição */
+.card {
+  border-color: var(--cor4);
+  border-radius: 12px;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Cabeçalho do card com leve tint teal */
+.card-header {
+  background-color: rgba(56, 115, 115, 0.08);
+  border-bottom-color: var(--cor4);
+}
+
+/* 7. Inputs e selects — foco na cor teal */
+.form-control:focus,
+.form-select:focus {
+  border-color: #387373;
+  box-shadow: 0 0 0 0.25rem rgba(56, 115, 115, 0.2);
+}
+
+/* 8. Badge personalizado para tipo RESIDENCIAL */
+.badge-teal {
+  background-color: #387373;
+  color: #fff;
+}
+
+/* 9. Telas de autenticação (Login e Cadastro) */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Gradiente igual ao hero do site de referência */
+  background: linear-gradient(135deg, #387373, #2D3E40);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 14px !important;
+  border: none !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
+}
+
+.auth-card .auth-titulo {
+  color: var(--cor1);
+  font-weight: 800;
+}
+
+/* 10. Área de conteúdo abaixo da navbar */
+.layout-main {
+  padding-top: 1.5rem;
+  min-height: calc(100vh - 60px);
+}

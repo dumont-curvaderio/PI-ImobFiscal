@@ -15,6 +15,7 @@ node_modules/
 # Build outputs
 dist/
 build/
+target/
 .next/
 .expo/
 out/

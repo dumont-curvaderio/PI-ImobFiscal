@@ -25,9 +25,9 @@ public class Imovel extends BaseEntity {
     @JoinColumn(name = "imobiliaria_id", nullable = false)
     private Imobiliaria imobiliaria;
 
-    // Relacionamento N:1 com Locador (proprietário)
+    // Relacionamento N:1 com Locador (proprietário) — opcional no cadastro inicial
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "locador_id", nullable = false)
+    @JoinColumn(name = "locador_id", nullable = true)
     private Locador locador;
 
     @Column(nullable = false)
@@ -80,6 +80,10 @@ public class Imovel extends BaseEntity {
 
     @Column(name = "data_compra")
     private LocalDate dataCompra;
+
+    // Valor de referência municipal — usado pelo Motor Tributário para IBS/CBS
+    @Column(name = "valor_venal", precision = 15, scale = 2)
+    private BigDecimal valorVenal;
 
     // Um imóvel pode ter vários contratos (histórico)
     @OneToMany(mappedBy = "imovel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

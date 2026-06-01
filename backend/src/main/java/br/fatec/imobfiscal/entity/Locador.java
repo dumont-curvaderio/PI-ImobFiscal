@@ -1,5 +1,6 @@
 package br.fatec.imobfiscal.entity;
 
+import br.fatec.imobfiscal.enums.RegimeTributario;
 import br.fatec.imobfiscal.enums.TipoPessoa;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -40,6 +41,10 @@ public class Locador extends BaseEntity {
     private String email;
 
     private String telefone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "regime_tributario")
+    private RegimeTributario regimeTributario;
 
     // Um locador pode ter vários imóveis
     @OneToMany(mappedBy = "locador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

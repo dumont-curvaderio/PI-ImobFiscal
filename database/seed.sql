@@ -30,7 +30,7 @@ VALUES (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     '11111111-1111-1111-1111-111111111111',
     'admin@imobfiscal.com.br',
-    '$2a$10$7QJ8xKZ1mNpL3vRwT5uYeO9bHcXdFgIjKlMnOpQrStUvWxYzAaBb',
+    '$2b$10$5fPNnosb1mXAd.ubBAo5p.jHLEEnIJXObiw0No52.s0x.VwdL1dQS',
     'Administrador Demo',
     'ADMIN'
 );

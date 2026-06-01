@@ -45,6 +45,7 @@ public class LocadorService {
                 .nome(request.nome())
                 .email(request.email())
                 .telefone(request.telefone())
+                .regimeTributario(request.regimeTributario())
                 .build();
 
         return LocadorResponse.from(locadorRepository.save(locador));
@@ -62,6 +63,7 @@ public class LocadorService {
         locador.setNome(request.nome());
         locador.setEmail(request.email());
         locador.setTelefone(request.telefone());
+        locador.setRegimeTributario(request.regimeTributario());
 
         return LocadorResponse.from(locadorRepository.save(locador));
     }

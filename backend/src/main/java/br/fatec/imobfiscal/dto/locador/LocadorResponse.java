@@ -1,6 +1,7 @@
 package br.fatec.imobfiscal.dto.locador;
 
 import br.fatec.imobfiscal.entity.Locador;
+import br.fatec.imobfiscal.enums.RegimeTributario;
 import br.fatec.imobfiscal.enums.TipoPessoa;
 
 import java.util.UUID;
@@ -13,7 +14,8 @@ public record LocadorResponse(
         String cpfCnpj,
         String nome,
         String email,
-        String telefone
+        String telefone,
+        RegimeTributario regimeTributario
 ) {
     // Método factory: converte a entidade JPA para o DTO de resposta
     public static LocadorResponse from(Locador locador) {
@@ -24,7 +26,8 @@ public record LocadorResponse(
                 locador.getCpfCnpj(),
                 locador.getNome(),
                 locador.getEmail(),
-                locador.getTelefone()
+                locador.getTelefone(),
+                locador.getRegimeTributario()
         );
     }
 }

@@ -24,7 +24,8 @@ public record ImovelResponse(
         Integer quartos,
         Integer vagas,
         BigDecimal valorCompra,
-        LocalDate dataCompra
+        LocalDate dataCompra,
+        BigDecimal valorVenal
 ) {
     // Método de fábrica: converte entidade → DTO de resposta
     public static ImovelResponse from(Imovel imovel) {
@@ -44,7 +45,8 @@ public record ImovelResponse(
                 imovel.getQuartos(),
                 imovel.getVagas(),
                 imovel.getValorCompra(),
-                imovel.getDataCompra()
+                imovel.getDataCompra(),
+                imovel.getValorVenal()
         );
     }
 }

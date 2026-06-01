@@ -11,7 +11,7 @@ import java.util.UUID;
 
 // Dados enviados pelo cliente para criar ou atualizar um imóvel
 public record ImovelRequest(
-        @NotNull(message = "Locador obrigatório")
+        // Locador é opcional — o imóvel pode ser cadastrado antes de associar o proprietário
         UUID locadorId,
 
         @NotBlank(message = "Código obrigatório")
@@ -38,5 +38,6 @@ public record ImovelRequest(
         Integer quartos,
         Integer vagas,
         BigDecimal valorCompra,
-        LocalDate dataCompra
+        LocalDate dataCompra,
+        BigDecimal valorVenal
 ) {}

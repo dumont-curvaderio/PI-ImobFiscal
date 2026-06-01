@@ -21,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // Configuração central de segurança da aplicação
 @Configuration
@@ -85,7 +86,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        // allowedOriginPatterns aceita wildcard: http://localhost:* cobre qualquer porta Vite (5173, 5174...)
+        List<String> patterns = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+        patterns.add("http://localhost:*");
+        config.setAllowedOriginPatterns(patterns);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

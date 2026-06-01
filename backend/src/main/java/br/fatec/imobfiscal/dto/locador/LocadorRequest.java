@@ -1,5 +1,6 @@
 package br.fatec.imobfiscal.dto.locador;
 
+import br.fatec.imobfiscal.enums.RegimeTributario;
 import br.fatec.imobfiscal.enums.TipoPessoa;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,5 +23,8 @@ public record LocadorRequest(
 
         String email,
 
-        String telefone
+        String telefone,
+
+        // Regime tributário — opcional (pode ser definido depois)
+        RegimeTributario regimeTributario
 ) {}

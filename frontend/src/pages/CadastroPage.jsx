@@ -49,15 +49,17 @@ function CadastroPage() {
   }
 
   return (
-    <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-      <div className="card shadow" style={{ width: '100%', maxWidth: '420px' }}>
+    // Fundo com gradiente teal → escuro (igual ao hero do site de referência)
+    <div className="auth-wrapper">
+      <div className="card auth-card">
         <div className="card-body p-4">
 
           {/* Cabeçalho */}
-          <h2 className="card-title text-center mb-4">
+          <h2 className="card-title text-center mb-1 auth-titulo">
             <i className="bi bi-person-plus me-2 text-primary"></i>
             Criar Conta
           </h2>
+          <p className="text-center text-muted mb-4">ImobFiscal — Sistema Imobiliário</p>
 
           {/* Mensagem de sucesso */}
           {sucesso && (
@@ -125,7 +127,7 @@ function CadastroPage() {
             {/* Botão de cadastro */}
             <button
               type="submit"
-              className="btn btn-success w-100"
+              className="btn btn-primary w-100"
               disabled={carregando || sucesso}
             >
               {carregando ? (

@@ -49,13 +49,13 @@ function LoginPage() {
   }
 
   return (
-    // Container centralizado verticalmente na tela
-    <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-      <div className="card shadow" style={{ width: '100%', maxWidth: '420px' }}>
+    // Fundo com gradiente teal → escuro (igual ao hero do site de referência)
+    <div className="auth-wrapper">
+      <div className="card auth-card">
         <div className="card-body p-4">
 
           {/* Cabeçalho do card */}
-          <h2 className="card-title text-center mb-4">
+          <h2 className="card-title text-center mb-1 auth-titulo">
             <i className="bi bi-building me-2 text-primary"></i>
             ImobFiscal
           </h2>

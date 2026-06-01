@@ -43,7 +43,7 @@ engenharia de software, desenvolvimento web e banco de dados relacional.
 **Específicos:**
 - Modelar o banco de dados com entidades Locador, Imóvel, Contrato e Nota Fiscal
 - Implementar CRUD completo integrado ao PostgreSQL
-- Integrar frontend React com backend Node.js via API REST
+- Integrar frontend React com backend Spring Boot via API REST
 - Calcular IBS e CBS sobre aluguéis (Reforma Tributária)
 - Documentar o sistema com diagramas UML (Caso de Uso, Classes, Sequência) e DER
 
@@ -68,7 +68,7 @@ engenharia de software, desenvolvimento web e banco de dados relacional.
 ```
 imobfiscal/
 ├── frontend/          # Interface web — React + Vite
-├── backend/           # API REST — Node.js + Express
+├── backend/           # API REST — Spring Boot + Java
 ├── database/
 │   ├── schema.sql     # DDL: criação das tabelas
 │   ├── seed.sql       # Dados iniciais de exemplo
@@ -170,7 +170,7 @@ Baseado no Diagrama de Classes orientador da disciplina:
 
 - Manual do Projeto Integrador PI 2 — FATEC DSM 2026-2
 - LC 214/2025 — Lei Complementar da Reforma Tributária
-- Documentação oficial: React, Node.js, Express, PostgreSQL
+- Documentação oficial: React, Spring Boot, Java, PostgreSQL
 
 ---
 

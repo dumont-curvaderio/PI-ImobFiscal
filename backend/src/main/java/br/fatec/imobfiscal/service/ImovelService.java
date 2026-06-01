@@ -45,8 +45,12 @@ public class ImovelService {
         Imobiliaria imobiliaria = imobiliariaRepository.findById(imobiliariaId)
                 .orElseThrow(() -> new RuntimeException("Imobiliária não encontrada"));
 
-        Locador locador = locadorRepository.findById(request.locadorId())
-                .orElseThrow(() -> new RuntimeException("Locador não encontrado"));
+        // Locador é opcional — permite cadastrar imóvel sem proprietário associado
+        Locador locador = null;
+        if (request.locadorId() != null) {
+            locador = locadorRepository.findById(request.locadorId())
+                    .orElseThrow(() -> new RuntimeException("Locador não encontrado"));
+        }
 
         Imovel imovel = Imovel.builder()
                 .imobiliaria(imobiliaria)
@@ -65,6 +69,7 @@ public class ImovelService {
                 .vagas(request.vagas())
                 .valorCompra(request.valorCompra())
                 .dataCompra(request.dataCompra())
+                .valorVenal(request.valorVenal())
                 .build();
 
         return ImovelResponse.from(imovelRepository.save(imovel));
@@ -91,6 +96,7 @@ public class ImovelService {
         imovel.setVagas(request.vagas());
         imovel.setValorCompra(request.valorCompra());
         imovel.setDataCompra(request.dataCompra());
+        imovel.setValorVenal(request.valorVenal());
 
         return ImovelResponse.from(imovelRepository.save(imovel));
     }

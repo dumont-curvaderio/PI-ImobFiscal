@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { buscarImovel } from '../services/api.js'
+import Breadcrumb from '../components/Breadcrumb.jsx'
 
 function ImovelDetalhePage() {
   // Lê o "id" da URL (ex: /imoveis/3 → id = "3")
@@ -70,9 +71,9 @@ function ImovelDetalhePage() {
           <i className="bi bi-exclamation-triangle me-2"></i>
           {erro}
         </div>
-        <button className="btn btn-secondary" onClick={() => navegar('/imoveis')}>
+        <button className="btn btn-secondary" onClick={() => navegar(-1)}>
           <i className="bi bi-arrow-left me-1"></i>
-          Voltar para a lista
+          Voltar
         </button>
       </div>
     )
@@ -81,12 +82,14 @@ function ImovelDetalhePage() {
   return (
     <div className="container py-4" style={{ maxWidth: '700px' }}>
 
+      <Breadcrumb pagina="Imóveis" sub="Detalhe" />
+
       {/* Cabeçalho com botão voltar */}
       <div className="d-flex align-items-center mb-4">
         <button
           className="btn btn-outline-secondary me-3"
-          onClick={() => navegar('/imoveis')}
-          title="Voltar para a lista"
+          onClick={() => navegar(-1)}
+          title="Voltar"
         >
           <i className="bi bi-arrow-left"></i>
         </button>
@@ -103,7 +106,7 @@ function ImovelDetalhePage() {
         {/* Campo "tipo" do ImovelResponse (não "tipoUso") */}
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="mb-0 fw-bold">{imovel.codigo}</h5>
-          <span className={`badge fs-6 ${imovel.tipo === 'COMERCIAL' ? 'bg-warning text-dark' : 'bg-success'}`}>
+          <span className={`badge fs-6 ${imovel.tipo === 'COMERCIAL' ? 'bg-warning text-dark' : 'badge-teal'}`}>
             {imovel.tipo}
           </span>
         </div>
@@ -149,7 +152,7 @@ function ImovelDetalhePage() {
               <i className="bi bi-currency-dollar me-1"></i>
               Valor de Compra
             </dt>
-            <dd className="col-sm-8 fw-semibold text-success">
+            <dd className="col-sm-8 fw-semibold text-primary">
               {formatarMoeda(imovel.valorCompra)}
             </dd>
 
@@ -239,7 +242,7 @@ function ImovelDetalhePage() {
           </Link>
           <button
             className="btn btn-outline-secondary"
-            onClick={() => navegar('/imoveis')}
+            onClick={() => navegar(-1)}
           >
             <i className="bi bi-arrow-left me-1"></i>
             Voltar

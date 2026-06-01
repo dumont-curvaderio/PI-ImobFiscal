@@ -3,7 +3,8 @@
 // A diferença é detectada pela URL: se tem ":id" na URL, é edição; senão, é criação
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { buscarImovel, criarImovel, atualizarImovel } from '../services/api.js'
+import { buscarImovel, criarImovel, atualizarImovel, listarLocadores, criarLocador } from '../services/api.js'
+import Breadcrumb from '../components/Breadcrumb.jsx'
 
 function ImovelFormPage() {
   // useParams lê os parâmetros da URL (ex: /imoveis/abc-uuid/editar → id = "abc-uuid")
@@ -48,11 +49,134 @@ function ImovelFormPage() {
   // No modo edição, aguarda os dados chegarem antes de mostrar o formulário
   const [carregandoDados, setCarregandoDados] = useState(modoEdicao)
   const [erro, setErro] = useState(null)
+  // Indica que está buscando o endereço pelo CEP na ViaCEP
+  const [buscandoCep, setBuscandoCep] = useState(false)
+
+  // ── Combobox de busca de locador ──────────────────────────────────────────
+  // Lista completa carregada da API (usada como base para o filtro)
+  const [locadores, setLocadores] = useState([])
+  // Texto digitado no campo de busca
+  const [locadorBusca, setLocadorBusca] = useState('')
+  // Locadores que correspondem ao texto digitado
+  const [locadoresFiltrados, setLocadoresFiltrados] = useState([])
+  // Controla se o dropdown de resultados está aberto
+  const [mostrarDropdown, setMostrarDropdown] = useState(false)
+  // Locador que o usuário selecionou (objeto completo, para exibir nome)
+  const [locadorSelecionado, setLocadorSelecionado] = useState(null)
+
+  // ── Modal de criação rápida de locador ────────────────────────────────────
+  const [mostrarModalNovoLocador, setMostrarModalNovoLocador] = useState(false)
+  const [novoLocadorNome, setNovoLocadorNome] = useState('')
+  const [novoLocadorCpfCnpj, setNovoLocadorCpfCnpj] = useState('')
+  const [novoLocadorTipoPessoa, setNovoLocadorTipoPessoa] = useState('PF')
+  const [salvandoLocador, setSalvandoLocador] = useState(false)
+  const [erroModal, setErroModal] = useState(null)
+  // Flag "Sem Número" — quando marcada, preenche numero com 'S/N' e torna o campo readonly
+  const [semNumero, setSemNumero] = useState(false)
 
   const navegar = useNavigate()
 
-  // Se for modo edição, busca os dados atuais do imóvel para preencher o formulário
+  // Busca o endereço pelo CEP usando a API pública ViaCEP (api.viacep.com.br)
+  // Chamada no onBlur do campo CEP — só dispara quando o usuário sai do campo
+  async function buscarCep(valorCep) {
+    const cepLimpo = valorCep.replace(/\D/g, '')
+    if (cepLimpo.length !== 8) return
+    setBuscandoCep(true)
+    try {
+      const resposta = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`)
+      const dados = await resposta.json()
+      if (!dados.erro) {
+        setLogradouro(dados.logradouro || '')
+        setBairro(dados.bairro || '')
+        setCidade(dados.localidade || '')
+        setUf(dados.uf || '')
+      }
+    } catch {
+      // Silencia: o usuário ainda pode preencher manualmente
+    } finally {
+      setBuscandoCep(false)
+    }
+  }
+
+  // Controla o checkbox S/N: marca → numero = 'S/N' readonly; desmarca → limpa e libera
+  function handleSemNumero(marcado) {
+    setSemNumero(marcado)
+    setNumero(marcado ? 'S/N' : '')
+  }
+
+  // ── Combobox: filtra locadores enquanto o usuário digita ──────────────────
+  function handleBuscaLocador(texto) {
+    setLocadorBusca(texto)
+    // Limpa a seleção atual ao editar o campo
+    setLocadorSelecionado(null)
+    setLocadorId('')
+
+    if (texto.trim().length === 0) {
+      setMostrarDropdown(false)
+      return
+    }
+    const termo = texto.toLowerCase()
+    const filtrados = locadores.filter(
+      (loc) =>
+        loc.nome.toLowerCase().includes(termo) ||
+        (loc.cpfCnpj && loc.cpfCnpj.includes(texto))
+    )
+    setLocadoresFiltrados(filtrados)
+    setMostrarDropdown(true)
+  }
+
+  // Seleciona um locador do dropdown → preenche o campo e fecha o menu
+  function selecionarLocador(loc) {
+    setLocadorSelecionado(loc)
+    setLocadorId(loc.id)
+    setLocadorBusca(loc.nome)
+    setMostrarDropdown(false)
+  }
+
+  // Abre o modal para criar um novo locador, pre-preenchendo o nome digitado
+  function abrirModalNovoLocador() {
+    setNovoLocadorNome(locadorBusca)
+    setNovoLocadorCpfCnpj('')
+    setNovoLocadorTipoPessoa('PF')
+    setErroModal(null)
+    setMostrarDropdown(false)
+    setMostrarModalNovoLocador(true)
+  }
+
+  // Salva o novo locador via API e auto-seleciona no formulário
+  async function handleSalvarNovoLocador() {
+    if (!novoLocadorNome.trim()) {
+      setErroModal('Nome é obrigatório.')
+      return
+    }
+    setSalvandoLocador(true)
+    setErroModal(null)
+    try {
+      const resposta = await criarLocador({
+        tipoPessoa: novoLocadorTipoPessoa,
+        nome: novoLocadorNome.trim(),
+        cpfCnpj: novoLocadorCpfCnpj.trim() || null,
+      })
+      const novoLocador = resposta.data
+      // Adiciona na lista local para aparecer em futuras buscas
+      setLocadores((prev) => [...prev, novoLocador])
+      // Seleciona automaticamente o locador recém-criado
+      selecionarLocador(novoLocador)
+      setMostrarModalNovoLocador(false)
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Erro ao criar locador.'
+      setErroModal(msg)
+    } finally {
+      setSalvandoLocador(false)
+    }
+  }
+
+  // Carrega lista de locadores para o select e, se edição, preenche o formulário
   useEffect(() => {
+    listarLocadores()
+      .then((r) => setLocadores(r.data))
+      .catch(() => setLocadores([]))
+
     if (modoEdicao) {
       carregarImovel()
     }
@@ -72,12 +196,25 @@ function ImovelFormPage() {
       setCep(imovel.cep || '')
       setLogradouro(imovel.logradouro || '')
       setNumero(imovel.numero || '')
+      setSemNumero(imovel.numero === 'S/N')
       setComplemento(imovel.complemento || '')
       setBairro(imovel.bairro || '')
       setCidade(imovel.cidade || '')
       setUf(imovel.uf || '')
       // locadorId é UUID string — sem parseInt
       setLocadorId(imovel.locadorId || '')
+      // Preenche o combobox de busca se já tiver locador associado
+      if (imovel.locadorId) {
+        // Busca na lista de locadores para obter o nome
+        const locadorEncontrado = locadores.find((l) => l.id === imovel.locadorId)
+        if (locadorEncontrado) {
+          setLocadorSelecionado(locadorEncontrado)
+          setLocadorBusca(locadorEncontrado.nome)
+        } else {
+          // Se a lista ainda não carregou, usa o ID como fallback temporário
+          setLocadorBusca(imovel.locadorId)
+        }
+      }
       // Campos opcionais: converte null para string vazia para o input funcionar
       setAreaTotal(imovel.areaTotal != null ? String(imovel.areaTotal) : '')
       setQuartos(imovel.quartos != null ? String(imovel.quartos) : '')
@@ -137,11 +274,14 @@ function ImovelFormPage() {
       // Após salvar com sucesso, volta para a lista
       navegar('/imoveis')
     } catch (err) {
-      if (err.response?.data?.message) {
-        setErro(err.response.data.message)
-      } else {
-        setErro('Erro ao salvar o imóvel. Verifique os dados e tente novamente.')
-      }
+      const data = err.response?.data
+      // Tenta ler a mensagem do GlobalExceptionHandler (message), ou erro genérico do Spring (error)
+      const mensagem = data?.message || data?.error || 'Erro ao salvar o imóvel.'
+      // Se houver erros por campo, lista todos depois da mensagem principal
+      const detalhesCampos = data?.errors
+        ? Object.entries(data.errors).map(([campo, msg]) => `${campo}: ${msg}`).join(' | ')
+        : null
+      setErro(detalhesCampos ? `${mensagem} — ${detalhesCampos}` : mensagem)
     } finally {
       setCarregando(false)
     }
@@ -160,12 +300,14 @@ function ImovelFormPage() {
   return (
     <div className="container py-4" style={{ maxWidth: '800px' }}>
 
+      <Breadcrumb pagina="Imóveis" sub={modoEdicao ? 'Editar' : 'Novo'} />
+
       {/* Cabeçalho com título dinâmico */}
       <div className="d-flex align-items-center mb-4">
         <button
           className="btn btn-outline-secondary me-3"
-          onClick={() => navegar('/imoveis')}
-          title="Voltar para a lista"
+          onClick={() => navegar(-1)}
+          title="Voltar"
         >
           <i className="bi bi-arrow-left"></i>
         </button>
@@ -241,10 +383,20 @@ function ImovelFormPage() {
                   placeholder="00000000"
                   value={cep}
                   onChange={(e) => setCep(e.target.value)}
+                  onBlur={(e) => buscarCep(e.target.value)}
                   maxLength={9}
                   required
                 />
-                <div className="form-text">Somente dígitos ou com traço</div>
+                <div className="form-text">
+                  {buscandoCep ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                      Buscando endereço...
+                    </>
+                  ) : (
+                    'Digite e saia do campo para preencher o endereço'
+                  )}
+                </div>
               </div>
               <div className="col-md-6">
                 <label htmlFor="logradouro" className="form-label">
@@ -261,16 +413,29 @@ function ImovelFormPage() {
                 />
               </div>
               <div className="col-md-3">
-                <label htmlFor="numero" className="form-label">
+                <label htmlFor="numero" className="form-label d-flex align-items-center gap-2 flex-wrap">
                   Número <span className="text-danger">*</span>
+                  <span className="form-check mb-0 ms-1">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="semNumero"
+                      checked={semNumero}
+                      onChange={(e) => handleSemNumero(e.target.checked)}
+                    />
+                    <label className="form-check-label small text-muted" htmlFor="semNumero">
+                      S/N
+                    </label>
+                  </span>
                 </label>
                 <input
                   type="text"
                   id="numero"
-                  className="form-control"
-                  placeholder="Ex: 100"
+                  className={`form-control ${semNumero ? 'bg-light text-muted' : ''}`}
+                  placeholder={semNumero ? '' : 'Ex: 100'}
                   value={numero}
-                  onChange={(e) => setNumero(e.target.value)}
+                  onChange={(e) => { if (!semNumero) setNumero(e.target.value) }}
+                  readOnly={semNumero}
                   required
                 />
               </div>
@@ -339,22 +504,112 @@ function ImovelFormPage() {
             </div>
 
             {/* ============================================================
-                Linha 4: ID do Locador (linha inteira)
-                locadorId é UUID (string de 36 chars), não número inteiro
+                Linha 4: Locador — busca por nome com criação inline
                 ============================================================ */}
             <div className="mb-3">
-              <label htmlFor="locadorId" className="form-label">
-                ID do Locador
+              <label htmlFor="locadorBusca" className="form-label">
+                Locador (Proprietário)
+                <span className="text-muted small fw-normal ms-2">— opcional</span>
               </label>
-              <input
-                type="text"
-                id="locadorId"
-                className="form-control"
-                placeholder="Ex: 550e8400-e29b-41d4-a716-446655440000"
-                value={locadorId}
-                onChange={(e) => setLocadorId(e.target.value)}
-              />
-              <div className="form-text">UUID do proprietário cadastrado no sistema</div>
+
+              {/* Input de busca com dropdown de resultados */}
+              <div className="position-relative">
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-search"></i>
+                  </span>
+                  <input
+                    type="text"
+                    id="locadorBusca"
+                    className={`form-control ${locadorSelecionado ? 'border-success' : ''}`}
+                    placeholder="Digite o nome ou CPF/CNPJ para buscar..."
+                    value={locadorBusca}
+                    onChange={(e) => handleBuscaLocador(e.target.value)}
+                    onFocus={() => {
+                      if (locadorBusca.trim() && !locadorSelecionado) setMostrarDropdown(true)
+                    }}
+                    onBlur={() => setTimeout(() => setMostrarDropdown(false), 150)}
+                    autoComplete="off"
+                  />
+                  {/* Botão para limpar a seleção */}
+                  {locadorSelecionado && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      title="Limpar seleção"
+                      onClick={() => {
+                        setLocadorSelecionado(null)
+                        setLocadorId('')
+                        setLocadorBusca('')
+                      }}
+                    >
+                      <i className="bi bi-x-lg"></i>
+                    </button>
+                  )}
+                </div>
+
+                {/* Dropdown de resultados */}
+                {mostrarDropdown && (
+                  <div
+                    className="dropdown-menu show w-100 shadow-sm border mt-1"
+                    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1050 }}
+                  >
+                    {locadoresFiltrados.length > 0 ? (
+                      locadoresFiltrados.map((loc) => (
+                        <button
+                          key={loc.id}
+                          type="button"
+                          className="dropdown-item py-2 d-flex align-items-center gap-2"
+                          onMouseDown={() => selecionarLocador(loc)}
+                        >
+                          <i className="bi bi-person-circle text-primary"></i>
+                          <span>
+                            <strong>{loc.nome}</strong>
+                            {loc.cpfCnpj && (
+                              <span className="text-muted ms-2 small">{loc.cpfCnpj}</span>
+                            )}
+                          </span>
+                        </button>
+                      ))
+                    ) : (
+                      <span className="dropdown-item-text text-muted small py-2">
+                        Nenhum locador encontrado para "{locadorBusca}"
+                      </span>
+                    )}
+                    <div className="dropdown-divider my-1"></div>
+                    {/* Opção de criar novo locador com o nome digitado */}
+                    <button
+                      type="button"
+                      className="dropdown-item text-primary py-2 d-flex align-items-center gap-2"
+                      onMouseDown={abrirModalNovoLocador}
+                    >
+                      <i className="bi bi-plus-circle-fill"></i>
+                      <span>
+                        Criar{locadorBusca.trim() ? ` "${locadorBusca.trim()}"` : ' novo locador'}
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Badge de confirmação quando um locador está selecionado */}
+              {locadorSelecionado && (
+                <div className="mt-2">
+                  <span className="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6">
+                    <i className="bi bi-person-check-fill me-2"></i>
+                    {locadorSelecionado.nome}
+                    {locadorSelecionado.cpfCnpj && (
+                      <span className="fw-normal ms-2 opacity-75">— {locadorSelecionado.cpfCnpj}</span>
+                    )}
+                  </span>
+                </div>
+              )}
+
+              <div className="form-text">
+                {locadorSelecionado
+                  ? 'Locador selecionado. Clique no ✕ para trocar.'
+                  : 'Busque pelo nome ou CPF/CNPJ. Se não existir, crie diretamente aqui.'}
+              </div>
             </div>
 
             {/* ============================================================
@@ -457,6 +712,132 @@ function ImovelFormPage() {
               </div>
             </div>
 
+            {/* ============================================================
+                Modal de criação rápida de locador
+                Abre quando o usuário clica "Criar" no dropdown da busca
+                ============================================================ */}
+            {mostrarModalNovoLocador && (
+              <div
+                className="modal fade show d-block"
+                style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+                onClick={(e) => {
+                  // Fecha ao clicar no fundo (fora do dialog)
+                  if (e.target === e.currentTarget) setMostrarModalNovoLocador(false)
+                }}
+              >
+                <div className="modal-dialog">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">
+                        <i className="bi bi-person-plus me-2 text-primary"></i>
+                        Novo Locador
+                      </h5>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        onClick={() => setMostrarModalNovoLocador(false)}
+                      />
+                    </div>
+
+                    <div className="modal-body">
+                      {erroModal && (
+                        <div className="alert alert-danger py-2 mb-3">
+                          <i className="bi bi-exclamation-triangle me-2"></i>
+                          {erroModal}
+                        </div>
+                      )}
+
+                      {/* Tipo de pessoa */}
+                      <div className="mb-3">
+                        <label className="form-label fw-semibold">
+                          Tipo de Pessoa <span className="text-danger">*</span>
+                        </label>
+                        <div className="d-flex gap-4">
+                          <div className="form-check">
+                            <input
+                              type="radio" className="form-check-input" id="modalTipoPf"
+                              value="PF" checked={novoLocadorTipoPessoa === 'PF'}
+                              onChange={(e) => setNovoLocadorTipoPessoa(e.target.value)}
+                            />
+                            <label className="form-check-label" htmlFor="modalTipoPf">
+                              Pessoa Física
+                            </label>
+                          </div>
+                          <div className="form-check">
+                            <input
+                              type="radio" className="form-check-input" id="modalTipoPj"
+                              value="PJ" checked={novoLocadorTipoPessoa === 'PJ'}
+                              onChange={(e) => setNovoLocadorTipoPessoa(e.target.value)}
+                            />
+                            <label className="form-check-label" htmlFor="modalTipoPj">
+                              Pessoa Jurídica
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Nome */}
+                      <div className="mb-3">
+                        <label htmlFor="modalNome" className="form-label fw-semibold">
+                          Nome completo <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text" id="modalNome" className="form-control"
+                          placeholder={novoLocadorTipoPessoa === 'PF' ? 'Ex: João da Silva' : 'Ex: Empresa Ltda'}
+                          value={novoLocadorNome}
+                          onChange={(e) => setNovoLocadorNome(e.target.value)}
+                          autoFocus
+                        />
+                      </div>
+
+                      {/* CPF / CNPJ */}
+                      <div className="mb-1">
+                        <label htmlFor="modalCpfCnpj" className="form-label fw-semibold">
+                          {novoLocadorTipoPessoa === 'PF' ? 'CPF' : 'CNPJ'}
+                          <span className="text-muted small fw-normal ms-2">— opcional</span>
+                        </label>
+                        <input
+                          type="text" id="modalCpfCnpj" className="form-control"
+                          placeholder={novoLocadorTipoPessoa === 'PF' ? '000.000.000-00' : '00.000.000/0000-00'}
+                          value={novoLocadorCpfCnpj}
+                          onChange={(e) => setNovoLocadorCpfCnpj(e.target.value)}
+                        />
+                      </div>
+                      <div className="form-text mb-0">
+                        Você pode completar os dados restantes em <strong>Locadores &gt; Editar</strong> depois.
+                      </div>
+                    </div>
+
+                    <div className="modal-footer">
+                      <button
+                        type="button" className="btn btn-secondary"
+                        onClick={() => setMostrarModalNovoLocador(false)}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button" className="btn btn-primary"
+                        onClick={handleSalvarNovoLocador}
+                        disabled={salvandoLocador}
+                      >
+                        {salvandoLocador ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Salvando...
+                          </>
+                        ) : (
+                          <>
+                            <i className="bi bi-floppy me-2"></i>
+                            Salvar e selecionar
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Botões de ação */}
             <div className="d-flex gap-2">
               <button
@@ -477,11 +858,11 @@ function ImovelFormPage() {
                 )}
               </button>
 
-              {/* Botão cancelar volta para a lista sem salvar */}
+              {/* Botão cancelar volta para onde o usuário veio */}
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                onClick={() => navegar('/imoveis')}
+                onClick={() => navegar(-1)}
                 disabled={carregando}
               >
                 <i className="bi bi-x-circle me-1"></i>

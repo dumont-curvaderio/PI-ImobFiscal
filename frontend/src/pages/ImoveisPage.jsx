@@ -1,9 +1,13 @@
 // Página de Listagem de Imóveis
 // Exibe todos os imóveis em uma tabela com ações por linha
+// A navbar é fornecida pelo componente Layout (ver App.jsx)
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { listarImoveis, excluirImovel } from '../services/api.js'
+import Toast from '../components/Toast.jsx'
+import Breadcrumb from '../components/Breadcrumb.jsx'
+
 
 function ImoveisPage() {
   // Lista de imóveis carregados da API
@@ -15,8 +19,11 @@ function ImoveisPage() {
   // Mensagem de erro, caso a busca falhe
   const [erro, setErro] = useState(null)
 
-  // Pega o usuário logado e a função de logout do contexto
-  const { usuario, fazerLogout } = useAuth()
+  // Estado do toast de feedback (null = oculto)
+  const [toast, setToast] = useState(null)
+
+  // Pega a função de logout do contexto (usada no tratamento de erro 401)
+  const { fazerLogout } = useAuth()
 
   const navegar = useNavigate()
 
@@ -57,15 +64,10 @@ function ImoveisPage() {
       await excluirImovel(id)
       // Atualiza a lista removendo o imóvel excluído (sem recarregar tudo)
       setImoveis(imoveis.filter((imovel) => imovel.id !== id))
+      setToast({ mensagem: `Imóvel "${codigo}" excluído com sucesso.`, tipo: 'success' })
     } catch (err) {
-      alert('Erro ao excluir o imóvel. Tente novamente.')
+      setToast({ mensagem: 'Erro ao excluir o imóvel. Tente novamente.', tipo: 'danger' })
     }
-  }
-
-  // Função para fazer logout e ir para login
-  function handleLogout() {
-    fazerLogout()
-    navegar('/login')
   }
 
   // Formata valor monetário para exibição (ex: 125000 → R$ 125.000,00)
@@ -77,155 +79,175 @@ function ImoveisPage() {
     }).format(valor)
   }
 
+  // Estatísticas calculadas a partir dos dados já carregados (sem nova chamada à API)
+  const totalResidencial = imoveis.filter((i) => i.tipo === 'RESIDENCIAL').length
+  const totalComercial = imoveis.filter((i) => i.tipo === 'COMERCIAL').length
+  const valorPortfolio = imoveis.reduce((soma, i) => soma + (i.valorCompra || 0), 0)
+
   return (
-    <div>
-      {/* Barra de navegação */}
-      <nav className="navbar navbar-dark bg-primary mb-4">
-        <div className="container">
-          {/* Logo/título do sistema */}
-          <span className="navbar-brand fw-bold">
-            <i className="bi bi-building me-2"></i>
-            ImobFiscal
-          </span>
+    <div className="container">
 
-          {/* Lado direito: email do usuário e botão sair */}
-          <div className="d-flex align-items-center gap-3">
-            <span className="text-white-50 small d-none d-md-inline">
-              <i className="bi bi-person-circle me-1"></i>
-              {usuario?.email}
-            </span>
-            <button
-              className="btn btn-outline-light btn-sm"
-              onClick={handleLogout}
-            >
-              <i className="bi bi-box-arrow-right me-1"></i>
-              Sair
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* Toast de feedback — aparece no canto inferior direito */}
+      {toast && (
+        <Toast
+          mensagem={toast.mensagem}
+          tipo={toast.tipo}
+          onFechar={() => setToast(null)}
+        />
+      )}
 
-      {/* Conteúdo principal */}
-      <div className="container">
+      {/* Navegação: Início > Imóveis */}
+      <Breadcrumb pagina="Imóveis" />
 
-        {/* Cabeçalho da seção com botão novo imóvel */}
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h4 className="mb-0">
-            <i className="bi bi-house-door me-2"></i>
-            Imóveis Cadastrados
-          </h4>
-          <Link to="/imoveis/novo" className="btn btn-primary">
-            <i className="bi bi-plus-circle me-1"></i>
-            Novo Imóvel
-          </Link>
-        </div>
-
-        {/* Spinner de carregamento */}
-        {carregando && (
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Carregando...</span>
-            </div>
-            <p className="mt-2 text-muted">Carregando imóveis...</p>
-          </div>
-        )}
-
-        {/* Mensagem de erro */}
-        {erro && (
-          <div className="alert alert-danger" role="alert">
-            <i className="bi bi-exclamation-triangle me-2"></i>
-            {erro}
-            <button
-              className="btn btn-sm btn-outline-danger ms-3"
-              onClick={carregarImoveis}
-            >
-              Tentar novamente
-            </button>
-          </div>
-        )}
-
-        {/* Tabela de imóveis (só aparece quando não está carregando) */}
-        {!carregando && !erro && (
-          <>
-            {/* Mensagem quando não há imóveis */}
-            {imoveis.length === 0 ? (
-              <div className="text-center py-5 text-muted">
-                <i className="bi bi-house-x display-1"></i>
-                <p className="mt-3">Nenhum imóvel cadastrado ainda.</p>
-                <Link to="/imoveis/novo" className="btn btn-primary">
-                  Cadastrar primeiro imóvel
-                </Link>
-              </div>
-            ) : (
-              /* Tabela responsiva com os imóveis */
-              <div className="table-responsive">
-                <table className="table table-striped table-hover align-middle">
-                  <thead className="table-dark">
-                    <tr>
-                      <th>Código</th>
-                      <th>Endereço</th>
-                      <th>Tipo</th>
-                      <th>Valor de Compra</th>
-                      <th className="text-center">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Renderiza uma linha para cada imóvel */}
-                    {imoveis.map((imovel) => (
-                      <tr key={imovel.id}>
-                        <td>
-                          <span className="fw-semibold">{imovel.codigo}</span>
-                        </td>
-                        {/* Endereço montado a partir dos campos separados do backend */}
-                        <td>
-                          {`${imovel.logradouro || ''}, ${imovel.numero || ''} — ${imovel.cidade || ''}/${imovel.uf || ''}`}
-                        </td>
-                        <td>
-                          {/* Badge colorido por tipo — campo "tipo" do ImovelResponse */}
-                          <span className={`badge ${imovel.tipo === 'COMERCIAL' ? 'bg-warning text-dark' : 'bg-success'}`}>
-                            {imovel.tipo}
-                          </span>
-                        </td>
-                        <td>{formatarMoeda(imovel.valorCompra)}</td>
-                        <td>
-                          {/* Botões de ação: Ver, Editar, Excluir */}
-                          <div className="d-flex gap-1 justify-content-center">
-                            <Link
-                              to={`/imoveis/${imovel.id}`}
-                              className="btn btn-sm btn-outline-info"
-                              title="Ver detalhes"
-                            >
-                              <i className="bi bi-eye"></i>
-                            </Link>
-                            <Link
-                              to={`/imoveis/${imovel.id}/editar`}
-                              className="btn btn-sm btn-outline-warning"
-                              title="Editar"
-                            >
-                              <i className="bi bi-pencil"></i>
-                            </Link>
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              title="Excluir"
-                              onClick={() => handleExcluir(imovel.id, imovel.codigo)}
-                            >
-                              <i className="bi bi-trash"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {/* Contador de registros */}
-                <p className="text-muted small">
-                  Total: {imoveis.length} imóvel(is) cadastrado(s)
-                </p>
-              </div>
-            )}
-          </>
-        )}
+      {/* Cabeçalho da seção com botão novo imóvel */}
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h4 className="mb-0">
+          <i className="bi bi-house-door me-2 text-primary"></i>
+          Imóveis Cadastrados
+        </h4>
+        <Link to="/imoveis/novo" className="btn btn-primary">
+          <i className="bi bi-plus-circle me-1"></i>
+          Novo Imóvel
+        </Link>
       </div>
+
+      {/* Cards de resumo — só aparecem quando há imóveis carregados */}
+      {!carregando && !erro && imoveis.length > 0 && (
+        <div className="row g-2 mb-3">
+          <div className="col-6 col-md-3">
+            <div className="card border-0 bg-white shadow-sm text-center py-2">
+              <div className="fs-4 fw-bold text-primary">{imoveis.length}</div>
+              <div className="text-muted small">Total</div>
+            </div>
+          </div>
+          <div className="col-6 col-md-3">
+            <div className="card border-0 bg-white shadow-sm text-center py-2">
+              <div className="fs-4 fw-bold text-primary">{totalResidencial}</div>
+              <div className="text-muted small">Residenciais</div>
+            </div>
+          </div>
+          <div className="col-6 col-md-3">
+            <div className="card border-0 bg-white shadow-sm text-center py-2">
+              <div className="fs-4 fw-bold text-warning">{totalComercial}</div>
+              <div className="text-muted small">Comerciais</div>
+            </div>
+          </div>
+          <div className="col-6 col-md-3">
+            <div className="card border-0 bg-white shadow-sm text-center py-2">
+              <div className="fw-bold text-primary" style={{ fontSize: '1rem' }}>
+                {formatarMoeda(valorPortfolio)}
+              </div>
+              <div className="text-muted small">Portfólio</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Spinner de carregamento */}
+      {carregando && (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Carregando...</span>
+          </div>
+          <p className="mt-2 text-muted">Carregando imóveis...</p>
+        </div>
+      )}
+
+      {/* Mensagem de erro */}
+      {erro && (
+        <div className="alert alert-danger" role="alert">
+          <i className="bi bi-exclamation-triangle me-2"></i>
+          {erro}
+          <button
+            className="btn btn-sm btn-outline-danger ms-3"
+            onClick={carregarImoveis}
+          >
+            Tentar novamente
+          </button>
+        </div>
+      )}
+
+      {/* Tabela de imóveis (só aparece quando não está carregando) */}
+      {!carregando && !erro && (
+        <>
+          {/* Mensagem quando não há imóveis */}
+          {imoveis.length === 0 ? (
+            <div className="text-center py-5 text-muted">
+              <i className="bi bi-house-x display-1 text-primary"></i>
+              <p className="mt-3">Nenhum imóvel cadastrado ainda.</p>
+              <Link to="/imoveis/novo" className="btn btn-primary">
+                Cadastrar primeiro imóvel
+              </Link>
+            </div>
+          ) : (
+            /* Tabela responsiva com os imóveis */
+            <div className="table-responsive">
+              <table className="table table-hover align-middle bg-white rounded">
+                <thead className="table-dark">
+                  <tr>
+                    <th>Código</th>
+                    <th>Endereço</th>
+                    <th>Tipo</th>
+                    <th>Valor de Compra</th>
+                    <th className="text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Renderiza uma linha para cada imóvel */}
+                  {imoveis.map((imovel) => (
+                    <tr key={imovel.id}>
+                      <td>
+                        <span className="fw-semibold">{imovel.codigo}</span>
+                      </td>
+                      {/* Endereço montado a partir dos campos separados do backend */}
+                      <td>
+                        {`${imovel.logradouro || ''}, ${imovel.numero || ''} — ${imovel.cidade || ''}/${imovel.uf || ''}`}
+                      </td>
+                      <td>
+                        {/* Badge colorido por tipo — campo "tipo" do ImovelResponse */}
+                        <span className={`badge ${imovel.tipo === 'COMERCIAL' ? 'bg-warning text-dark' : 'badge-teal'}`}>
+                          {imovel.tipo}
+                        </span>
+                      </td>
+                      <td>{formatarMoeda(imovel.valorCompra)}</td>
+                      <td>
+                        {/* Botões de ação: Ver, Editar, Excluir */}
+                        <div className="d-flex gap-1 justify-content-center">
+                          <Link
+                            to={`/imoveis/${imovel.id}`}
+                            className="btn btn-sm btn-outline-secondary"
+                            title="Ver detalhes"
+                          >
+                            <i className="bi bi-eye"></i>
+                          </Link>
+                          <Link
+                            to={`/imoveis/${imovel.id}/editar`}
+                            className="btn btn-sm btn-outline-warning"
+                            title="Editar"
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </Link>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            title="Excluir"
+                            onClick={() => handleExcluir(imovel.id, imovel.codigo)}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* Contador de registros */}
+              <p className="text-muted small">
+                Total: {imoveis.length} imóvel(is) cadastrado(s)
+              </p>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
