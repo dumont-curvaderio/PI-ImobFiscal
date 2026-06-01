@@ -2,9 +2,10 @@
 // Centraliza todas as chamadas HTTP usando Axios
 import axios from 'axios'
 
-// ID da imobiliária — placeholder para o MVP acadêmico
-// Em produção, este valor viria do perfil do usuário logado
-const IMOBILIARIA_ID = 1
+// UUID da imobiliária — placeholder para o MVP acadêmico
+// Em produção, este valor viria do perfil do usuário logado (token JWT)
+// Formato UUID: string de 36 caracteres (8-4-4-4-12 dígitos hexadecimais)
+const IMOBILIARIA_ID = '11111111-1111-1111-1111-111111111111'
 
 // Cria uma instância do Axios com configurações padrão
 const api = axios.create({

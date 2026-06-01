@@ -100,10 +100,11 @@ function ImovelDetalhePage() {
       <div className="card shadow-sm">
 
         {/* Cabeçalho do card com código e badge de tipo */}
+        {/* Campo "tipo" do ImovelResponse (não "tipoUso") */}
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="mb-0 fw-bold">{imovel.codigo}</h5>
-          <span className={`badge fs-6 ${imovel.tipoUso === 'COMERCIAL' ? 'bg-warning text-dark' : 'bg-success'}`}>
-            {imovel.tipoUso}
+          <span className={`badge fs-6 ${imovel.tipo === 'COMERCIAL' ? 'bg-warning text-dark' : 'bg-success'}`}>
+            {imovel.tipo}
           </span>
         </div>
 
@@ -111,30 +112,99 @@ function ImovelDetalhePage() {
           {/* Lista de campos usando grid do Bootstrap */}
           <dl className="row mb-0">
 
-            {/* Endereço */}
+            {/* Endereço completo montado a partir dos campos individuais do backend */}
             <dt className="col-sm-4 text-muted">
               <i className="bi bi-geo-alt me-1"></i>
-              Endereço
+              CEP
             </dt>
-            <dd className="col-sm-8">{imovel.endereco || 'Não informado'}</dd>
+            <dd className="col-sm-8">{imovel.cep || 'Não informado'}</dd>
 
-            {/* Valor Venal */}
             <dt className="col-sm-4 text-muted">
-              <i className="bi bi-currency-dollar me-1"></i>
-              Valor Venal
+              <i className="bi bi-signpost me-1"></i>
+              Logradouro
             </dt>
-            <dd className="col-sm-8 fw-semibold text-success">
-              {formatarMoeda(imovel.valorVenal)}
+            <dd className="col-sm-8">
+              {/* Junta logradouro + número + complemento (se houver) */}
+              {imovel.logradouro
+                ? `${imovel.logradouro}, ${imovel.numero || 's/n'}${imovel.complemento ? ` — ${imovel.complemento}` : ''}`
+                : 'Não informado'}
             </dd>
 
-            {/* ID do Locador */}
+            <dt className="col-sm-4 text-muted">
+              <i className="bi bi-map me-1"></i>
+              Bairro
+            </dt>
+            <dd className="col-sm-8">{imovel.bairro || 'Não informado'}</dd>
+
+            <dt className="col-sm-4 text-muted">
+              <i className="bi bi-building me-1"></i>
+              Cidade / UF
+            </dt>
+            <dd className="col-sm-8">
+              {imovel.cidade ? `${imovel.cidade} / ${imovel.uf}` : 'Não informado'}
+            </dd>
+
+            {/* Valor de Compra — campo "valorCompra" (não "valorVenal") */}
+            <dt className="col-sm-4 text-muted">
+              <i className="bi bi-currency-dollar me-1"></i>
+              Valor de Compra
+            </dt>
+            <dd className="col-sm-8 fw-semibold text-success">
+              {formatarMoeda(imovel.valorCompra)}
+            </dd>
+
+            {/* ID do Locador — é UUID (string), exibido como texto */}
             <dt className="col-sm-4 text-muted">
               <i className="bi bi-person me-1"></i>
               ID do Locador
             </dt>
-            <dd className="col-sm-8">{imovel.locadorId || 'Não informado'}</dd>
+            <dd className="col-sm-8 font-monospace small">
+              {imovel.locadorId || 'Não informado'}
+            </dd>
 
-            {/* Data de cadastro (se o backend retornar) */}
+            {/* Campos opcionais — só aparecem se o backend retornar valor não-nulo */}
+            {imovel.areaTotal != null && (
+              <>
+                <dt className="col-sm-4 text-muted">
+                  <i className="bi bi-rulers me-1"></i>
+                  Área Total
+                </dt>
+                <dd className="col-sm-8">{imovel.areaTotal} m²</dd>
+              </>
+            )}
+
+            {imovel.quartos != null && (
+              <>
+                <dt className="col-sm-4 text-muted">
+                  <i className="bi bi-door-closed me-1"></i>
+                  Quartos
+                </dt>
+                <dd className="col-sm-8">{imovel.quartos}</dd>
+              </>
+            )}
+
+            {imovel.vagas != null && (
+              <>
+                <dt className="col-sm-4 text-muted">
+                  <i className="bi bi-p-square me-1"></i>
+                  Vagas de Garagem
+                </dt>
+                <dd className="col-sm-8">{imovel.vagas}</dd>
+              </>
+            )}
+
+            {/* Data de Compra — campo "dataCompra" do ImovelResponse */}
+            {imovel.dataCompra && (
+              <>
+                <dt className="col-sm-4 text-muted">
+                  <i className="bi bi-calendar-check me-1"></i>
+                  Data de Compra
+                </dt>
+                <dd className="col-sm-8">{formatarData(imovel.dataCompra)}</dd>
+              </>
+            )}
+
+            {/* Datas de auditoria (se o backend retornar) */}
             {imovel.dataCadastro && (
               <>
                 <dt className="col-sm-4 text-muted">
@@ -145,7 +215,6 @@ function ImovelDetalhePage() {
               </>
             )}
 
-            {/* Data de atualização (se o backend retornar) */}
             {imovel.dataAtualizacao && (
               <>
                 <dt className="col-sm-4 text-muted">

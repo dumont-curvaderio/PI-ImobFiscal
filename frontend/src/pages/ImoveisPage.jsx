@@ -164,8 +164,8 @@ function ImoveisPage() {
                     <tr>
                       <th>Código</th>
                       <th>Endereço</th>
-                      <th>Tipo de Uso</th>
-                      <th>Valor Venal</th>
+                      <th>Tipo</th>
+                      <th>Valor de Compra</th>
                       <th className="text-center">Ações</th>
                     </tr>
                   </thead>
@@ -176,14 +176,17 @@ function ImoveisPage() {
                         <td>
                           <span className="fw-semibold">{imovel.codigo}</span>
                         </td>
-                        <td>{imovel.endereco}</td>
+                        {/* Endereço montado a partir dos campos separados do backend */}
                         <td>
-                          {/* Badge colorido por tipo de uso */}
-                          <span className={`badge ${imovel.tipoUso === 'COMERCIAL' ? 'bg-warning text-dark' : 'bg-success'}`}>
-                            {imovel.tipoUso}
+                          {`${imovel.logradouro || ''}, ${imovel.numero || ''} — ${imovel.cidade || ''}/${imovel.uf || ''}`}
+                        </td>
+                        <td>
+                          {/* Badge colorido por tipo — campo "tipo" do ImovelResponse */}
+                          <span className={`badge ${imovel.tipo === 'COMERCIAL' ? 'bg-warning text-dark' : 'bg-success'}`}>
+                            {imovel.tipo}
                           </span>
                         </td>
-                        <td>{formatarMoeda(imovel.valorVenal)}</td>
+                        <td>{formatarMoeda(imovel.valorCompra)}</td>
                         <td>
                           {/* Botões de ação: Ver, Editar, Excluir */}
                           <div className="d-flex gap-1 justify-content-center">
