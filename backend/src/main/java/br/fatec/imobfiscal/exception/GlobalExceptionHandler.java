@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
     }
 
-    // Erros de negócio lançados manualmente nos Services (RuntimeException)
+    // Erros com status HTTP explícito (lançados com ResponseStatusException).
+    // Ex: login inválido → 401; e-mail já cadastrado → 409.
+    // Precisa vir ANTES do handler genérico de RuntimeException, senão tudo
+    // viraria 400 (ResponseStatusException também é uma RuntimeException).
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {
+        Map<String, Object> corpo = new HashMap<>();
+        corpo.put("message", ex.getReason());
+
+        return ResponseEntity.status(ex.getStatusCode()).body(corpo);
+    }
+
+    // Erros de negócio lançados manualmente no Model/DAO (RuntimeException)
     // Ex: "Locador não encontrado", "Imóvel não encontrado"
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {

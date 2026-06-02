@@ -1,9 +1,11 @@
 package br.fatec.imobfiscal.controller;
 
-import br.fatec.imobfiscal.dto.notafiscal.NotaFiscalRequest;
-import br.fatec.imobfiscal.dto.notafiscal.NotaFiscalResponse;
 import br.fatec.imobfiscal.enums.StatusNFe;
-import br.fatec.imobfiscal.service.NotaFiscalService;
+import br.fatec.imobfiscal.model.NotaFiscal;
+import br.fatec.imobfiscal.model.dao.ContratoDao;
+import br.fatec.imobfiscal.model.dao.NotaFiscalDao;
+import br.fatec.imobfiscal.view.notafiscal.NotaFiscalRequest;
+import br.fatec.imobfiscal.view.notafiscal.NotaFiscalResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +19,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NotaFiscalController {
 
-    private final NotaFiscalService notaFiscalService;
+    private final NotaFiscalDao notaFiscalDao;
+    private final ContratoDao contratoDao;
 
     // GET /api/imobiliarias/{imobiliariaId}/notas-fiscais
     @GetMapping
-    public ResponseEntity<List<NotaFiscalResponse>> listar(
-            @PathVariable UUID imobiliariaId) {
-        return ResponseEntity.ok(notaFiscalService.listar(imobiliariaId));
+    public ResponseEntity<List<NotaFiscalResponse>> listar(@PathVariable UUID imobiliariaId) {
+        List<NotaFiscalResponse> resposta = notaFiscalDao.listar(imobiliariaId)
+                .stream()
+                .map(NotaFiscalResponse::from)
+                .toList();
+        return ResponseEntity.ok(resposta);
     }
 
     // GET /api/imobiliarias/{imobiliariaId}/notas-fiscais/por-contrato/{contratoId}
@@ -31,7 +37,14 @@ public class NotaFiscalController {
     public ResponseEntity<List<NotaFiscalResponse>> listarPorContrato(
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID contratoId) {
-        return ResponseEntity.ok(notaFiscalService.listarPorContrato(imobiliariaId, contratoId));
+        // Verifica se o contrato pertence à imobiliária antes de listar.
+        contratoDao.buscar(imobiliariaId, contratoId);
+
+        List<NotaFiscalResponse> resposta = notaFiscalDao.listarPorContrato(contratoId)
+                .stream()
+                .map(NotaFiscalResponse::from)
+                .toList();
+        return ResponseEntity.ok(resposta);
     }
 
     // GET /api/imobiliarias/{imobiliariaId}/notas-fiscais/{id}
@@ -39,16 +52,25 @@ public class NotaFiscalController {
     public ResponseEntity<NotaFiscalResponse> buscarPorId(
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id) {
-        return ResponseEntity.ok(notaFiscalService.buscarPorId(imobiliariaId, id));
+        return ResponseEntity.ok(NotaFiscalResponse.from(notaFiscalDao.buscar(imobiliariaId, id)));
     }
 
     // POST /api/imobiliarias/{imobiliariaId}/notas-fiscais
-    // Cria a nota com status AGUARDANDO — transmissão para SEFAZ é assíncrona
+    // Cria a nota com status AGUARDANDO — transmissão para SEFAZ é assíncrona.
     @PostMapping
     public ResponseEntity<NotaFiscalResponse> criar(
             @PathVariable UUID imobiliariaId,
             @Valid @RequestBody NotaFiscalRequest request) {
-        NotaFiscalResponse response = notaFiscalService.criar(imobiliariaId, request);
+        // Garante que o contrato existe e é da imobiliária.
+        contratoDao.buscar(imobiliariaId, request.contratoId());
+
+        NotaFiscal nf = new NotaFiscal();
+        nf.setImobiliariaId(imobiliariaId);
+        nf.setContratoId(request.contratoId());
+        nf.setValorServico(request.valorServico());
+        // IBS e CBS são informativos em 2026 (recolhimento obrigatório a partir de 2027).
+
+        NotaFiscalResponse response = NotaFiscalResponse.from(notaFiscalDao.inserir(nf));
         return ResponseEntity.status(201).body(response);
     }
 
@@ -58,6 +80,8 @@ public class NotaFiscalController {
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id,
             @RequestParam StatusNFe status) {
-        return ResponseEntity.ok(notaFiscalService.atualizarStatus(imobiliariaId, id, status));
+        notaFiscalDao.buscar(imobiliariaId, id);
+        notaFiscalDao.atualizarStatus(imobiliariaId, id, status);
+        return ResponseEntity.ok(NotaFiscalResponse.from(notaFiscalDao.buscar(imobiliariaId, id)));
     }
 }

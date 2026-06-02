@@ -1,8 +1,9 @@
 package br.fatec.imobfiscal.controller;
 
-import br.fatec.imobfiscal.dto.locador.LocadorRequest;
-import br.fatec.imobfiscal.dto.locador.LocadorResponse;
-import br.fatec.imobfiscal.service.LocadorService;
+import br.fatec.imobfiscal.model.Locador;
+import br.fatec.imobfiscal.model.dao.LocadorDao;
+import br.fatec.imobfiscal.view.locador.LocadorRequest;
+import br.fatec.imobfiscal.view.locador.LocadorResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,26 +17,38 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LocadorController {
 
-    private final LocadorService locadorService;
+    private final LocadorDao locadorDao;
 
     @GetMapping
-    public ResponseEntity<List<LocadorResponse>> listar(
-            @PathVariable UUID imobiliariaId) {
-        return ResponseEntity.ok(locadorService.listar(imobiliariaId));
+    public ResponseEntity<List<LocadorResponse>> listar(@PathVariable UUID imobiliariaId) {
+        List<LocadorResponse> resposta = locadorDao.listar(imobiliariaId)
+                .stream()
+                .map(LocadorResponse::from)
+                .toList();
+        return ResponseEntity.ok(resposta);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<LocadorResponse> buscarPorId(
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id) {
-        return ResponseEntity.ok(locadorService.buscarPorId(imobiliariaId, id));
+        return ResponseEntity.ok(LocadorResponse.from(locadorDao.buscar(imobiliariaId, id)));
     }
 
     @PostMapping
     public ResponseEntity<LocadorResponse> criar(
             @PathVariable UUID imobiliariaId,
             @Valid @RequestBody LocadorRequest request) {
-        LocadorResponse response = locadorService.criar(imobiliariaId, request);
+        Locador locador = new Locador();
+        locador.setImobiliariaId(imobiliariaId);
+        locador.setTipoPessoa(request.tipoPessoa());
+        locador.setCpfCnpj(request.cpfCnpj());
+        locador.setNome(request.nome());
+        locador.setEmail(request.email());
+        locador.setTelefone(request.telefone());
+        locador.setRegimeTributario(request.regimeTributario());
+
+        LocadorResponse response = LocadorResponse.from(locadorDao.inserir(locador));
         return ResponseEntity.status(201).body(response);
     }
 
@@ -44,14 +57,24 @@ public class LocadorController {
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id,
             @Valid @RequestBody LocadorRequest request) {
-        return ResponseEntity.ok(locadorService.atualizar(imobiliariaId, id, request));
+        // Confirma que existe e pertence à imobiliária antes de atualizar.
+        Locador locador = locadorDao.buscar(imobiliariaId, id);
+        locador.setTipoPessoa(request.tipoPessoa());
+        locador.setCpfCnpj(request.cpfCnpj());
+        locador.setNome(request.nome());
+        locador.setEmail(request.email());
+        locador.setTelefone(request.telefone());
+        locador.setRegimeTributario(request.regimeTributario());
+
+        return ResponseEntity.ok(LocadorResponse.from(locadorDao.atualizar(locador)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id) {
-        locadorService.deletar(imobiliariaId, id);
+        locadorDao.buscar(imobiliariaId, id);
+        locadorDao.softDelete(imobiliariaId, id);
         return ResponseEntity.noContent().build();
     }
 }

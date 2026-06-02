@@ -30,16 +30,19 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Data JPA: conectar com banco de dados via anotações -->
+        <!-- Spring JDBC: acesso a dados com SQL puro via JdbcTemplate -->
+        <!-- (substitui o JPA/Hibernate — agora escrevemos os SELECT/INSERT na mão) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
-        <!-- Spring Security: autenticação e autorização -->
+        <!-- BCrypt para hash de senha no login/cadastro.
+             NÃO usamos mais o Spring Security completo (sem JWT, API aberta) —
+             só esta biblioteca leve de criptografia para guardar a senha em hash. -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
         <!-- Validation: @NotBlank, @Email, @Size nos DTOs -->
@@ -55,25 +58,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- JWT: gerar e validar tokens de autenticação -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.12.5</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.12.5</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.12.5</version>
-            <scope>runtime</scope>
-        </dependency>
-
         <!-- Lombok: elimina getters/setters/construtores repetitivos -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -85,11 +69,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
