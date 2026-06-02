@@ -123,6 +123,79 @@ graph TB
 
 ---
 
+### UC02 — Consultar Imóvel
+
+- **Ator:** ClienteLocatário
+- **Pré-condição:** ClienteLocatário autenticado no sistema e com contrato ativo.
+- **Fluxo principal:**
+  1. ClienteLocatário acessa a listagem de imóveis disponíveis.
+  2. Sistema retorna os imóveis ativos da imobiliária (registros com `deletedAt` nulo).
+  3. ClienteLocatário seleciona um imóvel para ver os detalhes.
+  4. Sistema exibe as informações do imóvel: endereço, tipo, área, valor de compra e dados do locador.
+- **Fluxo alternativo — imóvel não encontrado:**
+  - Se o ID informado não existir ou pertencer a outra imobiliária, o sistema lança erro e retorna mensagem "Imóvel não encontrado".
+- **Pós-condição:** ClienteLocatário visualiza os dados do imóvel sem alterá-los.
+
+---
+
+### UC04 — Cadastrar Dados do Cliente
+
+- **Ator:** AdmImobiliária
+- **Pré-condição:** AdmImobiliária autenticada no sistema.
+- **Fluxo principal:**
+  1. AdmImobiliária acessa a tela de locadores.
+  2. Preenche os dados obrigatórios: tipo de pessoa (PF ou PJ), CPF/CNPJ, nome, e-mail, telefone e regime tributário.
+  3. Sistema cria o registro do locador vinculado à imobiliária (`imobiliariaId`).
+  4. Sistema retorna o locador criado com status HTTP 201.
+- **Fluxo alternativo — dados inválidos:**
+  - Se campos obrigatórios estiverem ausentes ou com formato inválido, o sistema rejeita a requisição com erro de validação (400).
+- **Pós-condição:** Locador disponível para ser associado a um imóvel.
+
+---
+
+### UC05 — Cadastrar Negociação
+
+- **Ator:** AdmImobiliária
+- **Pré-condição:** AdmImobiliária autenticada; imóvel e locador já cadastrados.
+- **Fluxo principal:**
+  1. AdmImobiliária acessa a tela de contratos.
+  2. Informa imóvel, tipo de locação, dados do locatário (nome, CPF/CNPJ, tipo de pessoa), valor do aluguel, dia de vencimento, datas de início e fim, e prazo em meses.
+  3. Sistema cria o contrato com status inicial `RASCUNHO`.
+  4. Sistema retorna o contrato criado com status HTTP 201.
+- **Fluxo alternativo — imóvel de outra imobiliária:**
+  - Se o `imovelId` não pertencer à imobiliária autenticada, o sistema lança erro e retorna mensagem "Imóvel não encontrado".
+- **Pós-condição:** Contrato em `RASCUNHO` disponível para análise documental (UC06) e geração formal (UC07).
+
+---
+
+### UC06 — Analisar Documentação
+
+- **Ator:** AdmImobiliária
+- **Pré-condição:** Contrato em status `RASCUNHO` existente (UC05 concluído).
+- **Fluxo principal:**
+  1. AdmImobiliária revisa os documentos do locatário fora do sistema (processo manual).
+  2. Após aprovação, AdmImobiliária acessa o contrato e solicita a atualização de status via `PATCH /{id}/status?status=ATIVO`.
+  3. Sistema atualiza o campo `status` para `ATIVO` e persiste.
+  4. Sistema retorna o contrato atualizado.
+- **Fluxo alternativo — documentação reprovada:**
+  - Se os documentos forem reprovados, o contrato permanece em `RASCUNHO` ou é movido para `RESCINDIDO`.
+- **Pós-condição:** Contrato com status refletindo o resultado da análise, pronto para geração formal (UC07) se aprovado.
+
+---
+
+### UC08 — Solicitar Assinatura
+
+- **Ator:** AdmImobiliária
+- **Pré-condição:** Contrato gerado com status `ATIVO` (UC07 concluído).
+- **Fluxo principal:**
+  1. AdmImobiliária localiza o contrato na listagem.
+  2. Aciona o processo de coleta de assinatura (comunicação externa ao sistema — e-mail ou presencial).
+  3. Após assinatura coletada, AdmImobiliária registra a confirmação atualizando o status do contrato via `PATCH /{id}/status`.
+  4. Sistema persiste a mudança e retorna o contrato atualizado.
+- **Pós-condição:** Contrato assinado; locação vigente para geração de boletos (UC03).
+
+---
+
 ### UC09 — Calcular IBS/CBS *(caso de uso interno)*
 
 - **Ator:** Sistema (acionado automaticamente)
@@ -134,3 +207,20 @@ graph TB
   - CBS: 0,9% (2026, recolhimento dispensado)
   - Fator de redução: 30% para residencial, 40% para short stay
   - A partir de 2027: CBS plena (8,8%), recolhimento obrigatório
+
+---
+
+### UC10 — Emitir Nota Fiscal *(caso de uso interno)*
+
+- **Ator:** Sistema (acionado automaticamente após UC09)
+- **Descrição:** Cria o registro de Nota Fiscal de Serviço com o detalhamento fiscal IBS/CBS calculado.
+  A transmissão eletrônica para a SEFAZ é assíncrona; a nota é criada com status `AGUARDANDO`.
+- **Fluxo principal:**
+  1. Sistema recebe o `contratoId` e `valorServico` do solicitante.
+  2. Sistema localiza o contrato e verifica que pertence à imobiliária (controle multi-tenant).
+  3. Sistema cria a `NotaFiscal` com status inicial `AGUARDANDO` e persiste.
+  4. Após processamento assíncrono pela SEFAZ, o status é atualizado via `PATCH /{id}/status`
+     para `AUTORIZADA`, `REJEITADA` ou `CANCELADA`.
+- **Fluxo alternativo — contrato inválido:**
+  - Se o `contratoId` não existir ou não pertencer à imobiliária, o sistema lança erro "Contrato não encontrado".
+- **Pós-condição:** Registro de Nota Fiscal criado com status `AGUARDANDO`; locador e locatário têm comprovante fiscal da operação de locação.

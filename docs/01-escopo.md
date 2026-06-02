@@ -65,8 +65,8 @@ O **ImobFiscal** é um sistema web que permite:
 - Exibir o detalhamento tributário vinculado ao contrato
 
 ### Autenticação
-- Login com e-mail e senha (JWT)
-- Rotas protegidas — apenas usuário autenticado acessa o sistema
+- Login com e-mail e senha (verificação por hash BCrypt; sem JWT)
+- Após o login, o sistema libera o acesso às telas. A API é aberta (autenticação simplificada, adequada ao MVP acadêmico que comunica apenas com o próprio frontend)
 
 ---
 
@@ -92,7 +92,7 @@ Os itens abaixo existem no produto final planejado, mas **não serão implementa
 | Frontend | React + JavaScript (Vite) |
 | Backend API | Spring Boot + Java |
 | Banco de Dados | PostgreSQL |
-| Autenticação | JWT (Spring Security) |
+| Autenticação | BCrypt (sem JWT; API aberta) |
 | Deploy | Vercel (frontend) + Railway (backend) |
 
 ---

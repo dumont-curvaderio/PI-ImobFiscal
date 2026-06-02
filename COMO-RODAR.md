@@ -84,14 +84,21 @@ cd "c:\Users\chris\OneDrive\FATEC\Fontes\PI - ContabilFiscal\imobfiscal"
 # Criar o banco de dados
 psql -U postgres -c "CREATE DATABASE imobfiscal;"
 
-# Criar as tabelas
+# 1. Estrutura base (tabelas, constraints, índices)
 psql -U postgres -d imobfiscal -f database\schema.sql
 
-# Inserir os dados de exemplo (imóveis, locadores, contrato de demo)
+# 2. Motor fiscal (tabelas de IBS/CBS e alíquotas)
+psql -U postgres -d imobfiscal -f database\V2__motor_fiscal.sql
+
+# 3. Dados de exemplo (imóveis, locadores, contrato de demo)
 psql -U postgres -d imobfiscal -f database\seed.sql
 ```
 
+Execute os scripts **nessa ordem** — cada um depende do anterior.
 Cada comando vai pedir a senha do PostgreSQL: **postgres**
+
+> **Nota:** o schema não é criado automaticamente pelo backend.
+> Sempre que recriar o banco, rode os três scripts acima na sequência.
 
 **Verificar se funcionou:**
 ```powershell
@@ -245,8 +252,10 @@ Todos os serviços têm plano **gratuito**.
 | `DB_URL` | `jdbc:postgresql://db.[ID].supabase.co:5432/postgres` |
 | `DB_USER` | `postgres` |
 | `DB_PASSWORD` | senha do Supabase |
-| `JWT_SECRET` | string aleatória longa (ex: `MInha-Senha-Super-Secreta-PI-FATEC-2026`) |
 | `CORS_ORIGINS` | URL do Vercel (preencher depois de criar o frontend) |
+
+> **Não existe `JWT_SECRET`** — a API é aberta. O login confere e-mail/senha via BCrypt
+> e devolve um marcador de sessão simples (não um JWT).
 
 6. Clique em **Create Web Service**
 7. Aguarde o deploy (3-5 min) e copie a URL gerada: `https://imobfiscal-backend.onrender.com`

@@ -20,8 +20,8 @@ Ao longo do semestre foram desenvolvidos e entregues:
 | 1 | Definição da ideia, escopo e abertura do repositório público no GitHub |
 | 2 | Levantamento de requisitos funcionais e não funcionais, casos de uso, diagrama de classes e diagrama de sequência |
 | 3 | Modelagem do banco de dados: `schema.sql`, `seed.sql`, DER e dicionário de dados |
-| 4 | Desenvolvimento completo — backend Spring Boot (CRUD de imóveis com JWT) e frontend React (login, cadastro, listagem, edição e detalhe) |
-| 5 | Plano de testes e 4 testes unitários com JUnit 5 + Mockito cobrindo `ImovelService` |
+| 4 | Desenvolvimento completo — backend Spring Boot em MVC clássico, com SQL puro (JdbcTemplate) e API aberta, e frontend React (login, cadastro, listagem, edição e detalhe) |
+| 5 | Plano de testes e 5 testes unitários com JUnit 5 + Mockito cobrindo `MotorTributario` e `ImovelDao` |
 | 6 | Revisão e finalização do README, considerações finais e preparação da apresentação |
 
 ---
@@ -40,12 +40,19 @@ chama a API, armazena os dados no estado e renderiza um cartão por imóvel.
 ### Spring Boot + Java (Backend)
 
 O backend foi migrado de Node.js/NestJS para Spring Boot durante o desenvolvimento, o que
-representou um aprendizado significativo. Os conceitos trabalhados foram:
+representou um aprendizado significativo. Posteriormente, por orientação do professor, o
+backend ainda passou por uma refatoração importante: saiu o ORM (JPA/Hibernate) e entrou
+**SQL puro com JdbcTemplate**, o código foi reorganizado em **MVC clássico** (`model` /
+`view` / `controller`, sem camada de service) e a autenticação por **JWT foi removida**
+(a API ficou aberta). Os conceitos trabalhados foram:
 
-- **Injeção de dependência** com `@Service`, `@Repository` e `@RestController`
-- **JPA + Hibernate** para mapear entidades Java para tabelas do PostgreSQL
-- **Spring Security + JWT** para autenticação stateless
-- **Soft delete** com o campo `deletedAt` para cumprir a exigência de guarda fiscal
+- **Injeção de dependência** com `@RestController`, `@Component` e `@Repository`
+- **SQL puro com JdbcTemplate** — escrever os `SELECT`/`INSERT`/`UPDATE` na mão, com
+  `RowMapper` mapeando colunas para objetos (em vez de deixar o Hibernate gerar o SQL)
+- **MVC clássico** — POJOs de domínio no `model`, DAOs em `model/dao`, DTOs no `view`
+- **BCrypt** para guardar a senha em hash (sem Spring Security; a API é aberta)
+- **Soft delete** com o campo `deletedAt` (um `UPDATE`, nunca `DELETE`) para cumprir a
+  exigência de guarda fiscal de 5 anos
 
 ### PostgreSQL (Banco de Dados)
 
@@ -56,10 +63,12 @@ pode ser usado para recriar todo o ambiente do zero.
 
 ### JUnit 5 + Mockito (Testes)
 
-Os quatro testes unitários do `ImovelServiceTest` foram escritos com a abordagem
-Arrange–Act–Assert. O Mockito foi usado para simular o repositório JPA, permitindo
-testar a lógica de negócio sem depender de um banco real. O teste de soft delete
-verificou explicitamente que `deleteById` nunca é chamado — garantindo a regra de
+Os cinco testes unitários (`MotorTributarioTest` e `ImovelDaoTest`) foram escritos com a
+abordagem Arrange–Act–Assert. O Mockito foi usado para simular o `JdbcTemplate` e o DAO,
+permitindo testar a lógica sem depender de um banco real. Destaques: o `MotorTributarioTest`
+confere o cálculo de IBS/CBS (R$ 2.000,00 → IBS R$ 29,00, CBS R$ 15,20, líquido R$ 1.955,80),
+o caso de alíquota inexistente e o caso de isenção (alíquota zero). O `ImovelDaoTest` verifica
+que o soft delete executa um `UPDATE` e **nunca** um `DELETE` físico — garantindo a regra de
 guarda fiscal.
 
 ---
@@ -80,18 +89,20 @@ A integração entre o frontend rodando na porta 5173 e o backend na porta 8080 
 configuração explícita de CORS no Spring Boot (`@CrossOrigin` e `CorsConfigurationSource`).
 Sem isso, o navegador bloqueava todas as requisições do frontend para a API.
 
-**Entender JWT e autenticação stateless**
+**Refatorar para SQL puro e remover o JWT**
 
-A implementação do filtro JWT (`JwtAuthFilter`) foi a parte mais complexa da segurança.
-O entendimento chegou ao separar as responsabilidades: `JwtUtil` gera e valida o token,
-`JwtAuthFilter` intercepta cada requisição, e `SecurityConfig` define quais rotas são
-públicas e quais exigem autenticação.
+Durante o projeto chegamos a implementar JPA/Hibernate e autenticação JWT com Spring
+Security. Depois, por orientação do professor, refizemos essa parte: trocamos o ORM por
+SQL escrito à mão (JdbcTemplate) e removemos o JWT, deixando a API aberta. O aprendizado
+foi entender o que cada camada realmente faz — ao escrever o SQL na mão (com `WHERE
+imobiliaria_id = ? AND deleted_at IS NULL`), ficou muito mais claro como o multi-tenancy
+e o soft delete acontecem, algo que o Hibernate antes escondia.
 
 ---
 
 ## 4. O que o sistema faz (funcionalidades entregues)
 
-- **Login e cadastro** de usuário com geração de token JWT
+- **Login e cadastro** de usuário com verificação de senha por BCrypt (sem JWT; a API é aberta)
 - **Listagem de imóveis** com filtro por imobiliária e paginação visual
 - **Cadastro de novo imóvel** com formulário validado no frontend e backend
 - **Edição de imóvel** com carregamento dos dados existentes
@@ -132,8 +143,8 @@ Este projeto foi a primeira experiência completa de desenvolvimento full-stack:
 concepção da ideia até um sistema funcionando com banco de dados, backend e frontend
 integrados. O maior aprendizado não foi uma tecnologia específica, mas a percepção de
 como as camadas se conectam — um formulário no React faz uma chamada HTTP, o Spring Boot
-valida o JWT, executa a regra de negócio e persiste no PostgreSQL, e a resposta JSON volta
-para atualizar a tela.
+executa a regra de negócio e persiste no PostgreSQL (com SQL escrito à mão), e a resposta
+JSON volta para atualizar a tela.
 
 A migração forçada de backend no meio do semestre foi estressante, mas ensinou algo
 importante: entender os conceitos (injeção de dependência, repositório, serviço) é mais

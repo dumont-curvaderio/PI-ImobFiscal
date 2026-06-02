@@ -19,7 +19,7 @@ PostgreSQL. Apresentado como **"ImobFiscal — Sistema de Gestão Imobiliária"*
 | Frontend | React + JavaScript (Vite) |
 | Backend | Spring Boot + Java |
 | Banco de dados | PostgreSQL |
-| Autenticação | JWT (Spring Security) |
+| Autenticação | BCrypt (sem JWT; API aberta) |
 | Deploy frontend | Vercel |
 | Deploy backend | Railway |
 
@@ -28,8 +28,8 @@ PostgreSQL. Apresentado como **"ImobFiscal — Sistema de Gestão Imobiliária"*
 ```
 imobfiscal/
 ├── frontend/          ← React + JavaScript (Vite)
-├── backend/           ← Node.js + Express
-├── database/          ← schema.sql, seed.sql, README com DER Mermaid
+├── backend/           ← Spring Boot 3.3 + Java 17 + Maven
+├── database/          ← schema.sql, V2__motor_fiscal.sql, seed.sql, README com DER Mermaid
 ├── docs/              ← documentação técnica do PI
 └── README.md          ← template FATEC preenchido
 ```
@@ -55,10 +55,27 @@ imobfiscal/
 
 ### Decisões técnicas fixas (não mudar no meio do semestre)
 
-- **Express direto com pg** — sem ORM, SQL puro para o professor ver o banco
+- **Spring Boot 3.3 + SQL puro (JdbcTemplate, sem ORM)** — persistência via DAOs com SQL escrito à mão; sem Hibernate/JPA
+- **MVC clássico** — pacotes `controller/`, `model/` (POJOs + regras), `model/dao/` (DAOs), `view/` (DTOs), `config/`, `exception/`, `enums/`; sem camada de service
 - **Soft delete** (`deleted_at`) em todas as tabelas com histórico
-- **JWT** para autenticação (jsonwebtoken + middleware simples)
+- **API aberta (sem JWT)** — login/cadastro conferem senha via BCrypt (`spring-security-crypto`); o token devolvido é apenas um marcador de sessão, não um JWT
+- **Schema criado manualmente** — rodar os scripts `database/schema.sql`, depois `database/V2__motor_fiscal.sql`, depois `database/seed.sql`; não há criação automática por ORM
 - **DER em Mermaid** dentro de `database/README.md` (renderiza no GitHub)
+- **Railway PostgreSQL** em produção (URL injetada como variável de ambiente no Railway)
+
+> **Nota de mudanças de decisão (orientadas pelo professor de Engenharia de Software):**
+>
+> 1. **NestJS/Express → Spring Boot / Java 17** (semanas 7–8): o currículo do curso tem maior
+>    suporte a Java e a banca avalia melhor a camada backend em Java.
+> 2. **Hibernate/JPA → SQL puro com JdbcTemplate** (refatoração posterior): o professor orientou
+>    o uso de SQL escrito à mão para que os alunos aprendessem persistência sem abstrações de ORM.
+> 3. **MVC clássico sem camada de service**: o professor orientou manter a estrutura MVC direta
+>    (controller → model/dao → view), sem introduzir uma camada de service.
+> 4. **Remoção de JWT / Spring Security**: o professor orientou simplificar a autenticação —
+>    a API ficou aberta; o login usa BCrypt (`spring-security-crypto`) e devolve apenas um marcador
+>    de sessão. A variável `JWT_SECRET` foi removida.
+>
+> Todas as mudanças estão registradas em `docs/07-consideracoes-finais.md`.
 
 ---
 
@@ -70,8 +87,8 @@ imobfiscal/
 | **2** | Escopo | `docs/01-escopo.md` |
 | **4** | Requisitos + UML | `docs/02-requisitos.md` + `docs/03-casos-de-uso.md` + `docs/04-diagrama-classes.md` |
 | **6** | Banco completo | `database/schema.sql` + `database/seed.sql` + `database/README.md` (DER) + `docs/05-dicionario-dados.md` |
-| **7** | Backend pt.1 | Setup Express + conexão PostgreSQL + CRUD Locador |
-| **8** | Backend pt.2 | CRUD Imovel + ContratoLocacao + JWT Auth |
+| **7** | Backend pt.1 | Setup Spring Boot + JdbcTemplate + conexão PostgreSQL + CRUD Locador |
+| **8** | Backend pt.2 | CRUD Imovel + ContratoLocacao + Auth BCrypt (sem JWT) |
 | **9** | Frontend base | Setup Vite/React + componentes base + login |
 | **10** | Frontend Locador + Imovel | Telas: listagem, criar, editar, excluir |
 | **11** | Frontend Contrato + integração | Telas de contrato + lib/api.js integrada ao backend |
@@ -91,12 +108,12 @@ PASSO 1 — Banco (sem 6):
   1.3  Escrever database/seed.sql com dados fictícios coerentes
 
 PASSO 2 — Backend Spring Boot (sem 7-8):
-  2.1  Setup: Spring Web + Spring Data JPA + PostgreSQL Driver + Spring Security
-  2.2  Configurar application.properties (datasource, jwt.secret)
-  2.3  Entidades JPA: Locador, Imovel, ContratoLocacao, NotaFiscal
-  2.4  Repositories: JpaRepository para cada entidade
-  2.5  Auth: POST /auth/login → retorna JWT
-  2.6  JwtFilter (Spring Security) — protege rotas autenticadas
+  2.1  Setup: Spring Web + spring-boot-starter-jdbc + PostgreSQL Driver + spring-security-crypto
+  2.2  Configurar application.properties (datasource)
+  2.3  POJOs de modelo: Locador, Imovel, ContratoLocacao, NotaFiscal
+  2.4  DAOs (model/dao/): SQL escrito à mão com JdbcTemplate
+  2.5  Auth: POST /auth/login → confere BCrypt, devolve marcador de sessão (não-JWT)
+  2.6  API aberta — sem JwtFilter, sem Spring Security em rotas
   2.7  CRUD Locador: GET/POST/PUT/DELETE /locadores
   2.8  CRUD Imovel: GET/POST/PUT/DELETE /imoveis
   2.9  CRUD Contrato: GET/POST/PUT/DELETE /contratos
@@ -154,7 +171,7 @@ Alterar a tabela sem atualizar o arquivo SQL deixa a entrega inconsistente.
 - [ ] POST/GET/PUT/DELETE `/locadores`
 - [ ] POST/GET/PUT/DELETE `/imoveis`
 - [ ] POST/GET/PUT/DELETE `/contratos`
-- [ ] Rotas protegidas por JWT
+- [ ] Login funcional com verificação BCrypt (API aberta, sem JWT)
 - [ ] Soft delete em todas as tabelas (filtra `deleted_at IS NULL`)
 
 ### Frontend — integração

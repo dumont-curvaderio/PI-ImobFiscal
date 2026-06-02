@@ -39,7 +39,7 @@ Descrevem **como o sistema deve se comportar**.
 | RNF01 | O sistema deve utilizar PostgreSQL como banco de dados relacional | Tecnologia |
 | RNF02 | A API deve seguir o padrão REST com respostas em formato JSON | Arquitetura |
 | RNF03 | As senhas dos usuários devem ser armazenadas com hash BCrypt | Segurança |
-| RNF04 | O acesso às rotas protegidas deve exigir autenticação via token JWT | Segurança |
+| RNF04 | O login deve validar e-mail e senha (hash BCrypt) e retornar 401 quando inválidas; a API é aberta, sem token JWT (decisão do projeto) | Segurança |
 | RNF05 | O frontend deve funcionar corretamente em navegadores desktop modernos (Chrome, Firefox, Edge) | Usabilidade |
 | RNF06 | O backend deve ser desenvolvido com Spring Boot e Java | Tecnologia |
 | RNF07 | O frontend deve ser desenvolvido com React, JavaScript e Vite | Tecnologia |
