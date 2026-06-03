@@ -19,8 +19,8 @@ const TIPOS_IMOVEL = [
 
 function SimuladorFiscalPage() {
   const [valorBase, setValorBase] = useState('')
-  const [regime, setRegime] = useState('PF')
-  const [tipoImovel, setTipoImovel] = useState('RESIDENCIAL')
+  const [regime, setRegime] = useState('')
+  const [tipoImovel, setTipoImovel] = useState('')
   const [resultado, setResultado] = useState(null)
   const [calculando, setCalculando] = useState(false)
   const [erro, setErro] = useState(null)
@@ -32,7 +32,7 @@ function SimuladorFiscalPage() {
 
   async function handleCalcular(e) {
     e.preventDefault()
-    if (!valorBase || parseFloat(valorBase) <= 0) return
+    if (!valorBase || parseFloat(valorBase) <= 0 || !regime || !tipoImovel) return
     setCalculando(true)
     setErro(null)
     setResultado(null)
@@ -84,7 +84,8 @@ function SimuladorFiscalPage() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Regime Tributário do Locador</label>
-                  <select className="form-select" value={regime} onChange={(e) => setRegime(e.target.value)}>
+                  <select className="form-select" value={regime} onChange={(e) => setRegime(e.target.value)} required>
+                    <option value="">Selecione o regime...</option>
                     {REGIMES.map((r) => (
                       <option key={r.valor} value={r.valor}>{r.label}</option>
                     ))}
@@ -92,7 +93,8 @@ function SimuladorFiscalPage() {
                 </div>
                 <div className="mb-4">
                   <label className="form-label fw-semibold">Tipo do Imóvel</label>
-                  <select className="form-select" value={tipoImovel} onChange={(e) => setTipoImovel(e.target.value)}>
+                  <select className="form-select" value={tipoImovel} onChange={(e) => setTipoImovel(e.target.value)} required>
+                    <option value="">Selecione o tipo...</option>
                     {TIPOS_IMOVEL.map((t) => (
                       <option key={t.valor} value={t.valor}>{t.label}</option>
                     ))}

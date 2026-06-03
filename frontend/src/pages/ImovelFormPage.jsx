@@ -8,7 +8,7 @@ function ImovelFormPage() {
   const modoEdicao = Boolean(id)
 
   const [codigo, setCodigo] = useState('')
-  const [tipo, setTipo] = useState('RESIDENCIAL')
+  const [tipo, setTipo] = useState('')
   const [cep, setCep] = useState('')
   const [logradouro, setLogradouro] = useState('')
   const [numero, setNumero] = useState('')
@@ -287,6 +287,7 @@ function ImovelFormPage() {
                   onChange={(e) => setTipo(e.target.value)}
                   required
                 >
+                  <option value="">Selecione o tipo...</option>
                   <option value="RESIDENCIAL">Residencial</option>
                   <option value="COMERCIAL">Comercial</option>
                 </select>

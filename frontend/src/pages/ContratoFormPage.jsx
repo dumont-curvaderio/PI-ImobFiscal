@@ -15,12 +15,12 @@ function ContratoFormPage() {
   const navegar = useNavigate()
 
   const [imovelId, setImovelId] = useState('')
-  const [tipoLocacao, setTipoLocacao] = useState('RESIDENCIAL_LONGA')
-  const [locatarioTipo, setLocatarioTipo] = useState('PF')
+  const [tipoLocacao, setTipoLocacao] = useState('')
+  const [locatarioTipo, setLocatarioTipo] = useState('')
   const [locatarioCpfCnpj, setLocatarioCpfCnpj] = useState('')
   const [locatarioNome, setLocatarioNome] = useState('')
   const [valorAluguel, setValorAluguel] = useState('')
-  const [diaVencimento, setDiaVencimento] = useState(10)
+  const [diaVencimento, setDiaVencimento] = useState('')
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
 
@@ -137,7 +137,8 @@ function ContratoFormPage() {
 
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Tipo de Locação</label>
-                  <select className="form-select" value={tipoLocacao} onChange={(e) => setTipoLocacao(e.target.value)}>
+                  <select className="form-select" value={tipoLocacao} onChange={(e) => setTipoLocacao(e.target.value)} required>
+                    <option value="">Selecione o tipo...</option>
                     {TIPOS_LOCACAO.map((t) => (
                       <option key={t.valor} value={t.valor}>{t.label}</option>
                     ))}
@@ -150,18 +151,19 @@ function ContratoFormPage() {
                 <div className="row g-3">
                   <div className="col-md-3">
                     <label className="form-label">Tipo</label>
-                    <select className="form-select" value={locatarioTipo} onChange={(e) => setLocatarioTipo(e.target.value)}>
+                    <select className="form-select" value={locatarioTipo} onChange={(e) => setLocatarioTipo(e.target.value)} required>
+                      <option value="">Selecione...</option>
                       <option value="PF">Pessoa Física</option>
                       <option value="PJ">Pessoa Jurídica</option>
                     </select>
                   </div>
                   <div className="col-md-4">
                     <label className="form-label">CPF / CNPJ <span className="text-danger">*</span></label>
-                    <input className="form-control" value={locatarioCpfCnpj} onChange={(e) => setLocatarioCpfCnpj(e.target.value)} required />
+                    <input className="form-control" value={locatarioCpfCnpj} onChange={(e) => setLocatarioCpfCnpj(e.target.value)} placeholder="000.000.000-00" required />
                   </div>
                   <div className="col-md-5">
                     <label className="form-label">Nome Completo <span className="text-danger">*</span></label>
-                    <input className="form-control" value={locatarioNome} onChange={(e) => setLocatarioNome(e.target.value)} required />
+                    <input className="form-control" value={locatarioNome} onChange={(e) => setLocatarioNome(e.target.value)} placeholder="Nome do locatário" required />
                   </div>
                 </div>
 
@@ -186,7 +188,7 @@ function ContratoFormPage() {
                   </div>
                   <div className="col-md-2">
                     <label className="form-label">Dia Vencimento</label>
-                    <input type="number" min="1" max="31" className="form-control" value={diaVencimento} onChange={(e) => setDiaVencimento(e.target.value)} />
+                    <input type="number" min="1" max="31" className="form-control" placeholder="Ex: 10" value={diaVencimento} onChange={(e) => setDiaVencimento(e.target.value)} required />
                   </div>
                   <div className="col-md-3">
                     <label className="form-label">Data Início <span className="text-danger">*</span></label>

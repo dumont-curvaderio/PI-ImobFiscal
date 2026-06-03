@@ -21,7 +21,7 @@ function LocadorFormPage() {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [telefone, setTelefone] = useState('')
-  const [regimeTributario, setRegimeTributario] = useState('PF')
+  const [regimeTributario, setRegimeTributario] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [toast, setToast] = useState(null)
 
@@ -148,7 +148,9 @@ function LocadorFormPage() {
                   className="form-select"
                   value={regimeTributario}
                   onChange={(e) => setRegimeTributario(e.target.value)}
+                  required
                 >
+                  <option value="">Selecione o regime...</option>
                   {REGIMES.map((r) => (
                     <option key={r.valor} value={r.valor}>{r.label}</option>
                   ))}
