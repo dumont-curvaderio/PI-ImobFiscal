@@ -13,15 +13,12 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-// DAO do Usuario — mantém o login/JWT funcionando.
-// Substitui o antigo UsuarioRepository (JPA).
 @Repository
 @RequiredArgsConstructor
 public class UsuarioDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    // Usado pelo Spring Security (UserDetailsServiceImpl) e pelo login.
     public Optional<Usuario> buscarPorEmail(String email) {
         String sql = """
                 SELECT id, imobiliaria_id, email, senha, nome, perfil,
@@ -36,14 +33,12 @@ public class UsuarioDao {
         }
     }
 
-    // Verifica se o e-mail já está cadastrado (usado no cadastro).
     public boolean existePorEmail(String email) {
         String sql = "SELECT COUNT(*) FROM usuarios WHERE email = ? AND deleted_at IS NULL";
         Integer total = jdbcTemplate.queryForObject(sql, Integer.class, email);
         return total != null && total > 0;
     }
 
-    // Insere um novo usuário. O id e as datas são gerados aqui, em Java.
     public void inserir(Usuario usuario) {
         usuario.setId(UUID.randomUUID());
         LocalDateTime agora = LocalDateTime.now();
@@ -61,7 +56,7 @@ public class UsuarioDao {
                 usuario.getEmail(),
                 usuario.getSenha(),
                 usuario.getNome(),
-                usuario.getPerfil().name(),   // enum gravado como string
+                usuario.getPerfil().name(),
                 usuario.getCreatedAt(),
                 usuario.getUpdatedAt());
     }

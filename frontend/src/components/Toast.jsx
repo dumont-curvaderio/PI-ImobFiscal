@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 
 function Toast({ mensagem, tipo = 'success', onFechar }) {
-  // Auto-fecha após 3 segundos
   useEffect(() => {
     const timer = setTimeout(onFechar, 3000)
     return () => clearTimeout(timer)

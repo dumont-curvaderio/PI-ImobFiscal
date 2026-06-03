@@ -1,11 +1,7 @@
-// Componente de layout para páginas autenticadas
-// Fornece a navbar superior com branding e botão de logout
-// Envolve o conteúdo de todas as páginas protegidas por login
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
 
 function Layout({ children }) {
-  // Pega o usuário logado e a função de logout do contexto
   const { usuario, fazerLogout } = useAuth()
   const navegar = useNavigate()
 
@@ -16,17 +12,14 @@ function Layout({ children }) {
 
   return (
     <>
-      {/* Navbar fixa no topo — cor --cor1 (verde escuro) */}
       <nav className="navbar navbar-dark navbar-imobfiscal">
         <div className="container">
 
-          {/* Logo clicável — volta ao dashboard */}
           <Link to="/dashboard" className="navbar-brand fw-bold fs-5 text-decoration-none">
             <i className="bi bi-building me-2" style={{ color: 'var(--cor3)' }}></i>
             ImobFiscal
           </Link>
 
-          {/* Links de navegação + email + botão sair */}
           <div className="d-flex align-items-center gap-3">
             <Link to="/imoveis" className="nav-link text-white d-none d-md-inline px-0" style={{ opacity: 0.85 }}>
               <i className="bi bi-house-door me-1"></i>Imóveis
@@ -59,7 +52,6 @@ function Layout({ children }) {
         </div>
       </nav>
 
-      {/* Conteúdo da página — cada rota renderiza seus filhos aqui */}
       <main className="layout-main">
         {children}
       </main>

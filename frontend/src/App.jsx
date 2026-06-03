@@ -1,11 +1,8 @@
-// Componente raiz da aplicação
-// Define todas as rotas usando React Router v6
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import RotaPrivada from './components/RotaPrivada.jsx'
 import Layout from './components/Layout.jsx'
 
-// Importa todas as páginas
 import LoginPage from './pages/LoginPage.jsx'
 import CadastroPage from './pages/CadastroPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
@@ -21,17 +18,12 @@ import BoletosPage from './pages/BoletosPage.jsx'
 
 function App() {
   return (
-    // BrowserRouter habilita a navegação por URLs normais (ex: /imoveis)
     <BrowserRouter>
-      {/* AuthProvider fornece login/logout para toda a aplicação */}
       <AuthProvider>
         <Routes>
-          {/* Rotas públicas — qualquer pessoa pode acessar */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<CadastroPage />} />
 
-          {/* Rotas privadas — só acessíveis com login
-              Layout envolve todas elas com a navbar do sistema */}
           <Route
             path="/dashboard"
             element={
@@ -91,10 +83,8 @@ function App() {
           <Route path="/simulador-fiscal" element={<RotaPrivada><Layout><SimuladorFiscalPage /></Layout></RotaPrivada>} />
           <Route path="/boletos" element={<RotaPrivada><Layout><BoletosPage /></Layout></RotaPrivada>} />
 
-          {/* Rota raiz redireciona para o dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* Qualquer URL desconhecida vai para login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </AuthProvider>

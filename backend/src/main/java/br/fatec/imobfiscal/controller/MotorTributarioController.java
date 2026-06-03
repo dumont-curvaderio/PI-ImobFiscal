@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-// UC-003 / UC-008: Motor Tributário — calcula IBS/CBS/Split Payment.
-// O controller injeta o componente de lógica do model diretamente.
 @RestController
 @RequestMapping("/api/motor-tributario")
 @RequiredArgsConstructor

@@ -1,83 +1,50 @@
-// Página de Formulário de Imóvel
-// Funciona tanto para CRIAR um novo imóvel quanto para EDITAR um existente
-// A diferença é detectada pela URL: se tem ":id" na URL, é edição; senão, é criação
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { buscarImovel, criarImovel, atualizarImovel, listarLocadores, criarLocador } from '../services/api.js'
 import Breadcrumb from '../components/Breadcrumb.jsx'
 
 function ImovelFormPage() {
-  // useParams lê os parâmetros da URL (ex: /imoveis/abc-uuid/editar → id = "abc-uuid")
   const { id } = useParams()
-
-  // Se tem "id" na URL, estamos editando. Se não tem, estamos criando.
   const modoEdicao = Boolean(id)
 
-  // -----------------------------------------------------------------------
-  // Estados dos campos obrigatórios do formulário
-  // Correspondem aos campos de ImovelRequest no backend
-  // -----------------------------------------------------------------------
   const [codigo, setCodigo] = useState('')
-  // Tipo do imóvel — enum no backend: RESIDENCIAL, COMERCIAL
   const [tipo, setTipo] = useState('RESIDENCIAL')
-  // Endereço separado em partes (o backend retorna e espera campos individuais)
   const [cep, setCep] = useState('')
   const [logradouro, setLogradouro] = useState('')
   const [numero, setNumero] = useState('')
   const [complemento, setComplemento] = useState('')
   const [bairro, setBairro] = useState('')
   const [cidade, setCidade] = useState('')
-  // UF: sigla do estado com 2 letras (ex: "SP", "RJ")
   const [uf, setUf] = useState('')
-  // locadorId é UUID (string), não número inteiro
   const [locadorId, setLocadorId] = useState('')
 
-  // -----------------------------------------------------------------------
-  // Estados dos campos opcionais ("Dados adicionais")
-  // -----------------------------------------------------------------------
   const [areaTotal, setAreaTotal] = useState('')
   const [quartos, setQuartos] = useState('')
   const [vagas, setVagas] = useState('')
-  // valorCompra substitui o antigo "valorVenal"
   const [valorCompra, setValorCompra] = useState('')
   const [dataCompra, setDataCompra] = useState('')
 
-  // -----------------------------------------------------------------------
-  // Estados de controle da interface
-  // -----------------------------------------------------------------------
   const [carregando, setCarregando] = useState(false)
-  // No modo edição, aguarda os dados chegarem antes de mostrar o formulário
   const [carregandoDados, setCarregandoDados] = useState(modoEdicao)
   const [erro, setErro] = useState(null)
-  // Indica que está buscando o endereço pelo CEP na ViaCEP
   const [buscandoCep, setBuscandoCep] = useState(false)
 
-  // ── Combobox de busca de locador ──────────────────────────────────────────
-  // Lista completa carregada da API (usada como base para o filtro)
   const [locadores, setLocadores] = useState([])
-  // Texto digitado no campo de busca
   const [locadorBusca, setLocadorBusca] = useState('')
-  // Locadores que correspondem ao texto digitado
   const [locadoresFiltrados, setLocadoresFiltrados] = useState([])
-  // Controla se o dropdown de resultados está aberto
   const [mostrarDropdown, setMostrarDropdown] = useState(false)
-  // Locador que o usuário selecionou (objeto completo, para exibir nome)
   const [locadorSelecionado, setLocadorSelecionado] = useState(null)
 
-  // ── Modal de criação rápida de locador ────────────────────────────────────
   const [mostrarModalNovoLocador, setMostrarModalNovoLocador] = useState(false)
   const [novoLocadorNome, setNovoLocadorNome] = useState('')
   const [novoLocadorCpfCnpj, setNovoLocadorCpfCnpj] = useState('')
   const [novoLocadorTipoPessoa, setNovoLocadorTipoPessoa] = useState('PF')
   const [salvandoLocador, setSalvandoLocador] = useState(false)
   const [erroModal, setErroModal] = useState(null)
-  // Flag "Sem Número" — quando marcada, preenche numero com 'S/N' e torna o campo readonly
   const [semNumero, setSemNumero] = useState(false)
 
   const navegar = useNavigate()
 
-  // Busca o endereço pelo CEP usando a API pública ViaCEP (api.viacep.com.br)
-  // Chamada no onBlur do campo CEP — só dispara quando o usuário sai do campo
   async function buscarCep(valorCep) {
     const cepLimpo = valorCep.replace(/\D/g, '')
     if (cepLimpo.length !== 8) return
@@ -98,16 +65,13 @@ function ImovelFormPage() {
     }
   }
 
-  // Controla o checkbox S/N: marca → numero = 'S/N' readonly; desmarca → limpa e libera
   function handleSemNumero(marcado) {
     setSemNumero(marcado)
     setNumero(marcado ? 'S/N' : '')
   }
 
-  // ── Combobox: filtra locadores enquanto o usuário digita ──────────────────
   function handleBuscaLocador(texto) {
     setLocadorBusca(texto)
-    // Limpa a seleção atual ao editar o campo
     setLocadorSelecionado(null)
     setLocadorId('')
 
@@ -125,7 +89,6 @@ function ImovelFormPage() {
     setMostrarDropdown(true)
   }
 
-  // Seleciona um locador do dropdown → preenche o campo e fecha o menu
   function selecionarLocador(loc) {
     setLocadorSelecionado(loc)
     setLocadorId(loc.id)
@@ -133,7 +96,6 @@ function ImovelFormPage() {
     setMostrarDropdown(false)
   }
 
-  // Abre o modal para criar um novo locador, pre-preenchendo o nome digitado
   function abrirModalNovoLocador() {
     setNovoLocadorNome(locadorBusca)
     setNovoLocadorCpfCnpj('')
@@ -143,7 +105,6 @@ function ImovelFormPage() {
     setMostrarModalNovoLocador(true)
   }
 
-  // Salva o novo locador via API e auto-seleciona no formulário
   async function handleSalvarNovoLocador() {
     if (!novoLocadorNome.trim()) {
       setErroModal('Nome é obrigatório.')
@@ -158,9 +119,7 @@ function ImovelFormPage() {
         cpfCnpj: novoLocadorCpfCnpj.trim() || null,
       })
       const novoLocador = resposta.data
-      // Adiciona na lista local para aparecer em futuras buscas
       setLocadores((prev) => [...prev, novoLocador])
-      // Seleciona automaticamente o locador recém-criado
       selecionarLocador(novoLocador)
       setMostrarModalNovoLocador(false)
     } catch (err) {
@@ -171,7 +130,6 @@ function ImovelFormPage() {
     }
   }
 
-  // Carrega lista de locadores para o select e, se edição, preenche o formulário
   useEffect(() => {
     listarLocadores()
       .then((r) => setLocadores(r.data))
@@ -180,18 +138,15 @@ function ImovelFormPage() {
     if (modoEdicao) {
       carregarImovel()
     }
-  }, [id]) // Reexecuta se o id mudar
+  }, [id])
 
-  // Busca os dados do imóvel pelo ID e preenche os campos
   async function carregarImovel() {
     setCarregandoDados(true)
     try {
       const resposta = await buscarImovel(id)
       const imovel = resposta.data
 
-      // Preenche cada campo com o valor vindo do backend (ou string vazia como fallback)
       setCodigo(imovel.codigo || '')
-      // Campo "tipo" do ImovelResponse (não "tipoUso")
       setTipo(imovel.tipo || 'RESIDENCIAL')
       setCep(imovel.cep || '')
       setLogradouro(imovel.logradouro || '')
@@ -201,25 +156,19 @@ function ImovelFormPage() {
       setBairro(imovel.bairro || '')
       setCidade(imovel.cidade || '')
       setUf(imovel.uf || '')
-      // locadorId é UUID string — sem parseInt
       setLocadorId(imovel.locadorId || '')
-      // Preenche o combobox de busca se já tiver locador associado
       if (imovel.locadorId) {
-        // Busca na lista de locadores para obter o nome
         const locadorEncontrado = locadores.find((l) => l.id === imovel.locadorId)
         if (locadorEncontrado) {
           setLocadorSelecionado(locadorEncontrado)
           setLocadorBusca(locadorEncontrado.nome)
         } else {
-          // Se a lista ainda não carregou, usa o ID como fallback temporário
           setLocadorBusca(imovel.locadorId)
         }
       }
-      // Campos opcionais: converte null para string vazia para o input funcionar
       setAreaTotal(imovel.areaTotal != null ? String(imovel.areaTotal) : '')
       setQuartos(imovel.quartos != null ? String(imovel.quartos) : '')
       setVagas(imovel.vagas != null ? String(imovel.vagas) : '')
-      // Campo "valorCompra" do ImovelResponse (não "valorVenal")
       setValorCompra(imovel.valorCompra != null ? String(imovel.valorCompra) : '')
       setDataCompra(imovel.dataCompra || '')
     } catch (err) {
@@ -229,55 +178,40 @@ function ImovelFormPage() {
     }
   }
 
-  // Função chamada ao enviar o formulário (criar ou editar)
   async function handleSubmit(evento) {
     evento.preventDefault()
     setErro(null)
     setCarregando(true)
 
-    // Monta o objeto com os dados do formulário para enviar à API
-    // Deve corresponder exatamente ao ImovelRequest do backend
     const dados = {
       codigo,
       tipo,
-      // Remove tudo que não for dígito do CEP antes de enviar (ex: "13.000-000" → "13000000")
       cep: cep.replace(/\D/g, ''),
       logradouro,
       numero,
-      // Complemento é opcional — envia null se estiver vazio
       complemento: complemento || null,
       bairro,
       cidade,
-      // UF sempre em maiúsculas (ex: "sp" → "SP")
       uf: uf.toUpperCase(),
-      // locadorId é UUID (string) — não usar parseInt
       locadorId: locadorId || null,
-      // Campos numéricos opcionais: converte string para número, ou null se vazio
       areaTotal: areaTotal ? parseFloat(areaTotal) : null,
       quartos: quartos ? parseInt(quartos, 10) : null,
       vagas: vagas ? parseInt(vagas, 10) : null,
-      // valorCompra substitui o antigo valorVenal
       valorCompra: valorCompra ? parseFloat(valorCompra) : null,
-      // dataCompra no formato "YYYY-MM-DD" (input type="date" já retorna assim)
       dataCompra: dataCompra || null,
     }
 
     try {
       if (modoEdicao) {
-        // Modo edição: chama PUT para atualizar
         await atualizarImovel(id, dados)
       } else {
-        // Modo criação: chama POST para criar
         await criarImovel(dados)
       }
 
-      // Após salvar com sucesso, volta para a lista
       navegar('/imoveis')
     } catch (err) {
       const data = err.response?.data
-      // Tenta ler a mensagem do GlobalExceptionHandler (message), ou erro genérico do Spring (error)
       const mensagem = data?.message || data?.error || 'Erro ao salvar o imóvel.'
-      // Se houver erros por campo, lista todos depois da mensagem principal
       const detalhesCampos = data?.errors
         ? Object.entries(data.errors).map(([campo, msg]) => `${campo}: ${msg}`).join(' | ')
         : null
@@ -287,7 +221,6 @@ function ImovelFormPage() {
     }
   }
 
-  // Exibe spinner enquanto carrega os dados no modo edição
   if (carregandoDados) {
     return (
       <div className="container py-5 text-center">
@@ -302,7 +235,6 @@ function ImovelFormPage() {
 
       <Breadcrumb pagina="Imóveis" sub={modoEdicao ? 'Editar' : 'Novo'} />
 
-      {/* Cabeçalho com título dinâmico */}
       <div className="d-flex align-items-center mb-4">
         <button
           className="btn btn-outline-secondary me-3"
@@ -313,16 +245,13 @@ function ImovelFormPage() {
         </button>
         <h4 className="mb-0">
           <i className={`bi ${modoEdicao ? 'bi-pencil-square' : 'bi-plus-circle'} me-2 text-primary`}></i>
-          {/* Título muda conforme o modo */}
           {modoEdicao ? 'Editar Imóvel' : 'Novo Imóvel'}
         </h4>
       </div>
 
-      {/* Card com o formulário */}
       <div className="card shadow-sm">
         <div className="card-body p-4">
 
-          {/* Mensagem de erro */}
           {erro && (
             <div className="alert alert-danger" role="alert">
               <i className="bi bi-exclamation-triangle me-2"></i>
@@ -332,9 +261,6 @@ function ImovelFormPage() {
 
           <form onSubmit={handleSubmit}>
 
-            {/* ============================================================
-                Linha 1: Código (col-8) + Tipo (col-4)
-                ============================================================ */}
             <div className="row mb-3">
               <div className="col-md-8">
                 <label htmlFor="codigo" className="form-label">
@@ -354,7 +280,6 @@ function ImovelFormPage() {
                 <label htmlFor="tipo" className="form-label">
                   Tipo <span className="text-danger">*</span>
                 </label>
-                {/* Select com os valores do enum Tipo no backend */}
                 <select
                   id="tipo"
                   className="form-select"
@@ -368,9 +293,6 @@ function ImovelFormPage() {
               </div>
             </div>
 
-            {/* ============================================================
-                Linha 2: CEP (col-3) + Logradouro (col-6) + Número (col-3)
-                ============================================================ */}
             <div className="row mb-3">
               <div className="col-md-3">
                 <label htmlFor="cep" className="form-label">
@@ -441,9 +363,6 @@ function ImovelFormPage() {
               </div>
             </div>
 
-            {/* ============================================================
-                Linha 3: Complemento (col-4) + Bairro (col-4) + Cidade (col-3) + UF (col-1)
-                ============================================================ */}
             <div className="row mb-3">
               <div className="col-md-4">
                 <label htmlFor="complemento" className="form-label">
@@ -503,16 +422,12 @@ function ImovelFormPage() {
               </div>
             </div>
 
-            {/* ============================================================
-                Linha 4: Locador — busca por nome com criação inline
-                ============================================================ */}
             <div className="mb-3">
               <label htmlFor="locadorBusca" className="form-label">
                 Locador (Proprietário)
                 <span className="text-muted small fw-normal ms-2">— opcional</span>
               </label>
 
-              {/* Input de busca com dropdown de resultados */}
               <div className="position-relative">
                 <div className="input-group">
                   <span className="input-group-text">
@@ -531,7 +446,6 @@ function ImovelFormPage() {
                     onBlur={() => setTimeout(() => setMostrarDropdown(false), 150)}
                     autoComplete="off"
                   />
-                  {/* Botão para limpar a seleção */}
                   {locadorSelecionado && (
                     <button
                       type="button"
@@ -548,7 +462,6 @@ function ImovelFormPage() {
                   )}
                 </div>
 
-                {/* Dropdown de resultados */}
                 {mostrarDropdown && (
                   <div
                     className="dropdown-menu show w-100 shadow-sm border mt-1"
@@ -577,7 +490,6 @@ function ImovelFormPage() {
                       </span>
                     )}
                     <div className="dropdown-divider my-1"></div>
-                    {/* Opção de criar novo locador com o nome digitado */}
                     <button
                       type="button"
                       className="dropdown-item text-primary py-2 d-flex align-items-center gap-2"
@@ -592,7 +504,6 @@ function ImovelFormPage() {
                 )}
               </div>
 
-              {/* Badge de confirmação quando um locador está selecionado */}
               {locadorSelecionado && (
                 <div className="mt-2">
                   <span className="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6">
@@ -612,12 +523,7 @@ function ImovelFormPage() {
               </div>
             </div>
 
-            {/* ============================================================
-                Seção colapsável: Dados adicionais (campos opcionais)
-                Usa o componente Collapse nativo do Bootstrap 5
-                ============================================================ */}
             <div className="mb-4">
-              {/* Botão que abre/fecha a seção — data-bs-toggle="collapse" é Bootstrap puro */}
               <button
                 type="button"
                 className="btn btn-outline-secondary btn-sm w-100 d-flex justify-content-between align-items-center"
@@ -633,11 +539,9 @@ function ImovelFormPage() {
                 <span className="text-muted small">Área, quartos, valor de compra...</span>
               </button>
 
-              {/* Conteúdo colapsável */}
               <div className="collapse" id="dadosAdicionais">
                 <div className="border border-top-0 rounded-bottom p-3">
 
-                  {/* Área total, Quartos, Vagas */}
                   <div className="row mb-3">
                     <div className="col-md-4">
                       <label htmlFor="areaTotal" className="form-label">Área Total (m²)</label>
@@ -680,7 +584,6 @@ function ImovelFormPage() {
                     </div>
                   </div>
 
-                  {/* Valor de Compra e Data de Compra */}
                   <div className="row">
                     <div className="col-md-6">
                       <label htmlFor="valorCompra" className="form-label">Valor de Compra (R$)</label>
@@ -712,16 +615,11 @@ function ImovelFormPage() {
               </div>
             </div>
 
-            {/* ============================================================
-                Modal de criação rápida de locador
-                Abre quando o usuário clica "Criar" no dropdown da busca
-                ============================================================ */}
             {mostrarModalNovoLocador && (
               <div
                 className="modal fade show d-block"
                 style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
                 onClick={(e) => {
-                  // Fecha ao clicar no fundo (fora do dialog)
                   if (e.target === e.currentTarget) setMostrarModalNovoLocador(false)
                 }}
               >
@@ -747,7 +645,6 @@ function ImovelFormPage() {
                         </div>
                       )}
 
-                      {/* Tipo de pessoa */}
                       <div className="mb-3">
                         <label className="form-label fw-semibold">
                           Tipo de Pessoa <span className="text-danger">*</span>
@@ -776,7 +673,6 @@ function ImovelFormPage() {
                         </div>
                       </div>
 
-                      {/* Nome */}
                       <div className="mb-3">
                         <label htmlFor="modalNome" className="form-label fw-semibold">
                           Nome completo <span className="text-danger">*</span>
@@ -790,7 +686,6 @@ function ImovelFormPage() {
                         />
                       </div>
 
-                      {/* CPF / CNPJ */}
                       <div className="mb-1">
                         <label htmlFor="modalCpfCnpj" className="form-label fw-semibold">
                           {novoLocadorTipoPessoa === 'PF' ? 'CPF' : 'CNPJ'}
@@ -838,7 +733,6 @@ function ImovelFormPage() {
               </div>
             )}
 
-            {/* Botões de ação */}
             <div className="d-flex gap-2">
               <button
                 type="submit"
@@ -858,7 +752,6 @@ function ImovelFormPage() {
                 )}
               </button>
 
-              {/* Botão cancelar volta para onde o usuário veio */}
               <button
                 type="button"
                 className="btn btn-outline-secondary"

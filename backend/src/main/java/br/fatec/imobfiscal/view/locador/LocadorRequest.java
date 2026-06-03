@@ -6,14 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-// DTO de entrada para criar ou atualizar um locador.
-// record = classe imutável com getters automáticos (Java 16+).
 public record LocadorRequest(
 
         @NotNull
         TipoPessoa tipoPessoa,
 
-        // CPF tem 11 dígitos, CNPJ tem 14
         @NotBlank
         @Size(min = 11, max = 14)
         String cpfCnpj,
@@ -25,6 +22,5 @@ public record LocadorRequest(
 
         String telefone,
 
-        // Regime tributário — opcional (pode ser definido depois)
         RegimeTributario regimeTributario
 ) {}

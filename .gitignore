@@ -66,3 +66,5 @@ prisma/generated/
 
 # Type generated files (regenerate com pnpm supabase:types)
 packages/core/src/types/supabase.ts
+
+.vercel

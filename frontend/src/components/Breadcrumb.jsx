@@ -1,8 +1,5 @@
 import { Link } from 'react-router-dom'
 
-// Breadcrumb de navegação: mostra "Início > NomeDaPagina"
-// Uso: <Breadcrumb pagina="Imóveis" />
-// Uso com sub-nível: <Breadcrumb pagina="Imóveis" sub="Novo Imóvel" />
 function Breadcrumb({ pagina, sub }) {
   return (
     <nav aria-label="breadcrumb" className="mb-2">

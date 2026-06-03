@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Dados devolvidos pela API — nunca expõe campos internos (deleted_at, etc.)
 public record ImovelResponse(
         UUID id,
         UUID locadorId,
@@ -27,8 +26,6 @@ public record ImovelResponse(
         LocalDate dataCompra,
         BigDecimal valorVenal
 ) {
-    // Método de fábrica: converte o model → DTO de resposta.
-    // Agora o model já tem o locadorId como UUID direto (não objeto aninhado).
     public static ImovelResponse from(Imovel imovel) {
         return new ImovelResponse(
                 imovel.getId(),

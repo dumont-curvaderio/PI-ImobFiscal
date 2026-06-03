@@ -1,24 +1,15 @@
-// Página de Detalhe do Imóvel
-// Exibe todos os dados de um imóvel específico em um card Bootstrap
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { buscarImovel } from '../services/api.js'
 import Breadcrumb from '../components/Breadcrumb.jsx'
 
 function ImovelDetalhePage() {
-  // Lê o "id" da URL (ex: /imoveis/3 → id = "3")
   const { id } = useParams()
-
-  // Estado para guardar os dados do imóvel
   const [imovel, setImovel] = useState(null)
-
-  // Estados de controle de carregamento e erro
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
-
   const navegar = useNavigate()
 
-  // Carrega os dados do imóvel quando a página abre
   useEffect(() => {
     async function carregar() {
       try {
@@ -38,7 +29,6 @@ function ImovelDetalhePage() {
     carregar()
   }, [id])
 
-  // Formata valor monetário (ex: 150000 → R$ 150.000,00)
   function formatarMoeda(valor) {
     if (valor == null) return 'Não informado'
     return new Intl.NumberFormat('pt-BR', {
@@ -47,13 +37,11 @@ function ImovelDetalhePage() {
     }).format(valor)
   }
 
-  // Formata data ISO para o padrão brasileiro (ex: 2024-01-15 → 15/01/2024)
   function formatarData(dataIso) {
     if (!dataIso) return 'Não informada'
     return new Date(dataIso).toLocaleDateString('pt-BR')
   }
 
-  // Tela de carregamento
   if (carregando) {
     return (
       <div className="container py-5 text-center">
@@ -63,7 +51,6 @@ function ImovelDetalhePage() {
     )
   }
 
-  // Tela de erro
   if (erro) {
     return (
       <div className="container py-4">
@@ -84,7 +71,6 @@ function ImovelDetalhePage() {
 
       <Breadcrumb pagina="Imóveis" sub="Detalhe" />
 
-      {/* Cabeçalho com botão voltar */}
       <div className="d-flex align-items-center mb-4">
         <button
           className="btn btn-outline-secondary me-3"
@@ -99,11 +85,8 @@ function ImovelDetalhePage() {
         </h4>
       </div>
 
-      {/* Card principal com os dados do imóvel */}
       <div className="card shadow-sm">
 
-        {/* Cabeçalho do card com código e badge de tipo */}
-        {/* Campo "tipo" do ImovelResponse (não "tipoUso") */}
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="mb-0 fw-bold">{imovel.codigo}</h5>
           <span className={`badge fs-6 ${imovel.tipo === 'COMERCIAL' ? 'bg-warning text-dark' : 'badge-teal'}`}>
@@ -112,10 +95,8 @@ function ImovelDetalhePage() {
         </div>
 
         <div className="card-body">
-          {/* Lista de campos usando grid do Bootstrap */}
           <dl className="row mb-0">
 
-            {/* Endereço completo montado a partir dos campos individuais do backend */}
             <dt className="col-sm-4 text-muted">
               <i className="bi bi-geo-alt me-1"></i>
               CEP
@@ -127,7 +108,6 @@ function ImovelDetalhePage() {
               Logradouro
             </dt>
             <dd className="col-sm-8">
-              {/* Junta logradouro + número + complemento (se houver) */}
               {imovel.logradouro
                 ? `${imovel.logradouro}, ${imovel.numero || 's/n'}${imovel.complemento ? ` — ${imovel.complemento}` : ''}`
                 : 'Não informado'}
@@ -147,7 +127,6 @@ function ImovelDetalhePage() {
               {imovel.cidade ? `${imovel.cidade} / ${imovel.uf}` : 'Não informado'}
             </dd>
 
-            {/* Valor de Compra — campo "valorCompra" (não "valorVenal") */}
             <dt className="col-sm-4 text-muted">
               <i className="bi bi-currency-dollar me-1"></i>
               Valor de Compra
@@ -156,7 +135,6 @@ function ImovelDetalhePage() {
               {formatarMoeda(imovel.valorCompra)}
             </dd>
 
-            {/* ID do Locador — é UUID (string), exibido como texto */}
             <dt className="col-sm-4 text-muted">
               <i className="bi bi-person me-1"></i>
               ID do Locador
@@ -165,7 +143,6 @@ function ImovelDetalhePage() {
               {imovel.locadorId || 'Não informado'}
             </dd>
 
-            {/* Campos opcionais — só aparecem se o backend retornar valor não-nulo */}
             {imovel.areaTotal != null && (
               <>
                 <dt className="col-sm-4 text-muted">
@@ -196,7 +173,6 @@ function ImovelDetalhePage() {
               </>
             )}
 
-            {/* Data de Compra — campo "dataCompra" do ImovelResponse */}
             {imovel.dataCompra && (
               <>
                 <dt className="col-sm-4 text-muted">
@@ -207,7 +183,6 @@ function ImovelDetalhePage() {
               </>
             )}
 
-            {/* Datas de auditoria (se o backend retornar) */}
             {imovel.dataCadastro && (
               <>
                 <dt className="col-sm-4 text-muted">
@@ -231,7 +206,6 @@ function ImovelDetalhePage() {
           </dl>
         </div>
 
-        {/* Rodapé do card com botões de ação */}
         <div className="card-footer d-flex gap-2">
           <Link
             to={`/imoveis/${imovel.id}/editar`}

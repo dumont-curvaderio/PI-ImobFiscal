@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-// @RestController = @Controller + @ResponseBody (converte retorno para JSON automaticamente).
-// No padrão MVC sem service, o controller chama o DAO diretamente.
 @RestController
 @RequestMapping("/api/imobiliarias/{imobiliariaId}/imoveis")
 @RequiredArgsConstructor
@@ -21,7 +19,6 @@ public class ImovelController {
 
     private final ImovelDao imovelDao;
 
-    // GET /api/imobiliarias/{imobiliariaId}/imoveis → lista todos os imóveis
     @GetMapping
     public ResponseEntity<List<ImovelResponse>> listar(@PathVariable UUID imobiliariaId) {
         List<ImovelResponse> resposta = imovelDao.listar(imobiliariaId)
@@ -31,7 +28,6 @@ public class ImovelController {
         return ResponseEntity.ok(resposta);
     }
 
-    // GET /api/imobiliarias/{imobiliariaId}/imoveis/{id} → busca um imóvel
     @GetMapping("/{id}")
     public ResponseEntity<ImovelResponse> buscarPorId(
             @PathVariable UUID imobiliariaId,
@@ -39,13 +35,10 @@ public class ImovelController {
         return ResponseEntity.ok(ImovelResponse.from(imovelDao.buscar(imobiliariaId, id)));
     }
 
-    // POST /api/imobiliarias/{imobiliariaId}/imoveis → cria um imóvel
-    // @Valid dispara as validações anotadas no DTO (@NotBlank, @Size, etc.)
     @PostMapping
     public ResponseEntity<ImovelResponse> criar(
             @PathVariable UUID imobiliariaId,
             @Valid @RequestBody ImovelRequest request) {
-        // Monta o model a partir do request (via setters — sem builder).
         Imovel imovel = new Imovel();
         imovel.setImobiliariaId(imobiliariaId);
         imovel.setLocadorId(request.locadorId());   // opcional
@@ -69,13 +62,11 @@ public class ImovelController {
         return ResponseEntity.status(201).body(response);
     }
 
-    // PUT /api/imobiliarias/{imobiliariaId}/imoveis/{id} → atualiza um imóvel
     @PutMapping("/{id}")
     public ResponseEntity<ImovelResponse> atualizar(
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id,
             @Valid @RequestBody ImovelRequest request) {
-        // Garante que o imóvel existe e pertence à imobiliária antes de atualizar.
         Imovel imovel = imovelDao.buscar(imobiliariaId, id);
         imovel.setLocadorId(request.locadorId());
         imovel.setCodigo(request.codigo());
@@ -97,14 +88,12 @@ public class ImovelController {
         return ResponseEntity.ok(ImovelResponse.from(imovelDao.atualizar(imovel)));
     }
 
-    // DELETE /api/imobiliarias/{imobiliariaId}/imoveis/{id} → soft delete
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id) {
-        // Confirma que existe (e é da imobiliária) antes de marcar deleted_at.
         imovelDao.buscar(imobiliariaId, id);
         imovelDao.softDelete(imobiliariaId, id);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.noContent().build();
     }
 }

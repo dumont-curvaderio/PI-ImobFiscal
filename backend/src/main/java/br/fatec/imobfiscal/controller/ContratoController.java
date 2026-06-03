@@ -42,7 +42,6 @@ public class ContratoController {
     public ResponseEntity<ContratoResponse> criar(
             @PathVariable UUID imobiliariaId,
             @Valid @RequestBody ContratoRequest request) {
-        // Garante que o imóvel existe e pertence à imobiliária (multi-tenancy).
         imovelDao.buscar(imobiliariaId, request.imovelId());
 
         ContratoLocacao contrato = new ContratoLocacao();
@@ -62,17 +61,13 @@ public class ContratoController {
         return ResponseEntity.status(201).body(response);
     }
 
-    // PATCH /api/imobiliarias/{imobiliariaId}/contratos/{id}/status
-    // Atualiza apenas o status (ex: RASCUNHO → ATIVO)
     @PatchMapping("/{id}/status")
     public ResponseEntity<ContratoResponse> atualizarStatus(
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id,
             @RequestParam StatusContrato status) {
-        // Confirma que existe antes de trocar o status.
         contratoDao.buscar(imobiliariaId, id);
         contratoDao.atualizarStatus(imobiliariaId, id, status);
-        // Devolve o contrato já com o novo status.
         return ResponseEntity.ok(ContratoResponse.from(contratoDao.buscar(imobiliariaId, id)));
     }
 

@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-// DAO do ContratoLocacao — CRUD com SQL puro.
 @Repository
 @RequiredArgsConstructor
 public class ContratoDao {
@@ -86,7 +85,6 @@ public class ContratoDao {
         return contrato;
     }
 
-    // Atualiza apenas o status (ex: RASCUNHO → ATIVO).
     public void atualizarStatus(UUID imobiliariaId, UUID id, StatusContrato novoStatus) {
         LocalDateTime agora = LocalDateTime.now();
         String sql = """
@@ -97,7 +95,6 @@ public class ContratoDao {
         jdbcTemplate.update(sql, novoStatus.name(), agora, id, imobiliariaId);
     }
 
-    // Soft delete via UPDATE — nunca DELETE físico.
     public void softDelete(UUID imobiliariaId, UUID id) {
         LocalDateTime agora = LocalDateTime.now();
         String sql = """

@@ -14,15 +14,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-// DAO do Locador — CRUD completo com SQL puro.
-// Multi-tenancy e soft delete são aplicados direto no SQL (WHERE), não em Java.
 @Repository
 @RequiredArgsConstructor
 public class LocadorDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    // Lista todos os locadores ativos de uma imobiliária.
     public List<Locador> listar(UUID imobiliariaId) {
         String sql = """
                 SELECT id, imobiliaria_id, tipo_pessoa, cpf_cnpj, nome, email, telefone,
@@ -34,7 +31,6 @@ public class LocadorDao {
         return jdbcTemplate.query(sql, this::mapRow, imobiliariaId);
     }
 
-    // Busca um locador garantindo que pertence à imobiliária (multi-tenancy).
     public Locador buscar(UUID imobiliariaId, UUID id) {
         String sql = """
                 SELECT id, imobiliaria_id, tipo_pessoa, cpf_cnpj, nome, email, telefone,
@@ -45,12 +41,10 @@ public class LocadorDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRow, id, imobiliariaId);
         } catch (EmptyResultDataAccessException e) {
-            // Mantém a mesma mensagem do código antigo para não quebrar o contrato.
             throw new RuntimeException("Locador não encontrado");
         }
     }
 
-    // Insere um novo locador. id e datas gerados em Java.
     public Locador inserir(Locador locador) {
         locador.setId(UUID.randomUUID());
         LocalDateTime agora = LocalDateTime.now();
@@ -77,7 +71,6 @@ public class LocadorDao {
         return locador;
     }
 
-    // Atualiza os dados de um locador existente.
     public Locador atualizar(Locador locador) {
         locador.setUpdatedAt(LocalDateTime.now());
 
@@ -100,7 +93,6 @@ public class LocadorDao {
         return locador;
     }
 
-    // Soft delete: preenche deleted_at. NUNCA fazemos DELETE físico (guarda fiscal 5 anos).
     public void softDelete(UUID imobiliariaId, UUID id) {
         LocalDateTime agora = LocalDateTime.now();
         String sql = """

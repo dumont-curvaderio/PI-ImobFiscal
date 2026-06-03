@@ -6,7 +6,6 @@ import br.fatec.imobfiscal.model.Locador;
 
 import java.util.UUID;
 
-// DTO de saída — nunca expõe campos internos desnecessários.
 public record LocadorResponse(
         UUID id,
         UUID imobiliariaId,
@@ -17,7 +16,6 @@ public record LocadorResponse(
         String telefone,
         RegimeTributario regimeTributario
 ) {
-    // Método factory: converte o model para o DTO de resposta.
     public static LocadorResponse from(Locador locador) {
         return new LocadorResponse(
                 locador.getId(),

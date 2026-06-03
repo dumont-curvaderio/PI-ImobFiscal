@@ -1,26 +1,16 @@
-// Página de Cadastro
-// Formulário para criar uma nova conta no sistema
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { cadastrar } from '../services/api.js'
 
 function CadastroPage() {
-  // Estados dos campos do formulário
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
-
-  // Estado para mensagem de erro ou sucesso
   const [erro, setErro] = useState(null)
   const [sucesso, setSucesso] = useState(false)
-
-  // Estado para desabilitar o botão durante a requisição
   const [carregando, setCarregando] = useState(false)
-
-  // Hook de navegação
   const navegar = useNavigate()
 
-  // Função chamada ao enviar o formulário
   async function handleSubmit(evento) {
     evento.preventDefault()
 
@@ -28,14 +18,10 @@ function CadastroPage() {
     setCarregando(true)
 
     try {
-      // Chama a API para criar o usuário
       await cadastrar(nome, email, senha)
-
-      // Exibe mensagem de sucesso brevemente e redireciona para login
       setSucesso(true)
       setTimeout(() => navegar('/login'), 2000)
     } catch (err) {
-      // Trata erros comuns do backend
       if (err.response?.status === 409) {
         setErro('Este email já está cadastrado.')
       } else if (err.response?.data?.message) {
@@ -49,19 +35,16 @@ function CadastroPage() {
   }
 
   return (
-    // Fundo com gradiente teal → escuro (igual ao hero do site de referência)
     <div className="auth-wrapper">
       <div className="card auth-card">
         <div className="card-body p-4">
 
-          {/* Cabeçalho */}
           <h2 className="card-title text-center mb-1 auth-titulo">
             <i className="bi bi-person-plus me-2 text-primary"></i>
             Criar Conta
           </h2>
           <p className="text-center text-muted mb-4">ImobFiscal — Sistema Imobiliário</p>
 
-          {/* Mensagem de sucesso */}
           {sucesso && (
             <div className="alert alert-success" role="alert">
               <i className="bi bi-check-circle me-2"></i>
@@ -69,7 +52,6 @@ function CadastroPage() {
             </div>
           )}
 
-          {/* Mensagem de erro */}
           {erro && (
             <div className="alert alert-danger" role="alert">
               <i className="bi bi-exclamation-triangle me-2"></i>
@@ -77,10 +59,8 @@ function CadastroPage() {
             </div>
           )}
 
-          {/* Formulário de cadastro */}
           <form onSubmit={handleSubmit}>
 
-            {/* Campo nome */}
             <div className="mb-3">
               <label htmlFor="nome" className="form-label">Nome completo</label>
               <input
@@ -95,7 +75,6 @@ function CadastroPage() {
               />
             </div>
 
-            {/* Campo email */}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Email</label>
               <input
@@ -109,7 +88,6 @@ function CadastroPage() {
               />
             </div>
 
-            {/* Campo senha */}
             <div className="mb-4">
               <label htmlFor="senha" className="form-label">Senha</label>
               <input
@@ -124,7 +102,6 @@ function CadastroPage() {
               />
             </div>
 
-            {/* Botão de cadastro */}
             <button
               type="submit"
               className="btn btn-primary w-100"
@@ -144,7 +121,6 @@ function CadastroPage() {
             </button>
           </form>
 
-          {/* Link para voltar ao login */}
           <hr />
           <p className="text-center mb-0">
             Já tem conta?{' '}

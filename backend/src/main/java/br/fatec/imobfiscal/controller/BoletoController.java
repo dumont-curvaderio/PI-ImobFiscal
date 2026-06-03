@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-// UC-003: Geração de boletos com detalhamento fiscal IBS/CBS (Split Payment).
-// Listagem/busca vão direto ao DAO; a geração usa o componente GeradorBoleto.
 @RestController
 @RequestMapping("/api/imobiliarias/{imobiliariaId}/boletos")
 @RequiredArgsConstructor

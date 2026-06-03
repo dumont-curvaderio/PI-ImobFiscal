@@ -1,6 +1,3 @@
-// Página de Listagem de Imóveis
-// Exibe todos os imóveis em uma tabela com ações por linha
-// A navbar é fornecida pelo componente Layout (ver App.jsx)
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
@@ -10,30 +7,17 @@ import Breadcrumb from '../components/Breadcrumb.jsx'
 
 
 function ImoveisPage() {
-  // Lista de imóveis carregados da API
   const [imoveis, setImoveis] = useState([])
-
-  // Estado de carregamento (mostra spinner enquanto busca os dados)
   const [carregando, setCarregando] = useState(true)
-
-  // Mensagem de erro, caso a busca falhe
   const [erro, setErro] = useState(null)
-
-  // Estado do toast de feedback (null = oculto)
   const [toast, setToast] = useState(null)
-
-  // Pega a função de logout do contexto (usada no tratamento de erro 401)
   const { fazerLogout } = useAuth()
-
   const navegar = useNavigate()
 
-  // useEffect: executa uma vez quando a página carrega
-  // Equivale ao "ao abrir a página, buscar os dados"
   useEffect(() => {
     carregarImoveis()
-  }, []) // Array vazio = executa só na primeira renderização
+  }, [])
 
-  // Função que busca os imóveis do backend
   async function carregarImoveis() {
     setCarregando(true)
     setErro(null)
@@ -43,7 +27,6 @@ function ImoveisPage() {
       setImoveis(resposta.data)
     } catch (err) {
       if (err.response?.status === 401) {
-        // Token expirado ou inválido — faz logout
         fazerLogout()
         navegar('/login')
       } else {
@@ -54,15 +37,12 @@ function ImoveisPage() {
     }
   }
 
-  // Função chamada ao clicar em "Excluir"
   async function handleExcluir(id, codigo) {
-    // Pede confirmação antes de excluir
     const confirmar = window.confirm(`Deseja excluir o imóvel "${codigo}"?`)
     if (!confirmar) return
 
     try {
       await excluirImovel(id)
-      // Atualiza a lista removendo o imóvel excluído (sem recarregar tudo)
       setImoveis(imoveis.filter((imovel) => imovel.id !== id))
       setToast({ mensagem: `Imóvel "${codigo}" excluído com sucesso.`, tipo: 'success' })
     } catch (err) {
@@ -70,7 +50,6 @@ function ImoveisPage() {
     }
   }
 
-  // Formata valor monetário para exibição (ex: 125000 → R$ 125.000,00)
   function formatarMoeda(valor) {
     if (valor == null) return '-'
     return new Intl.NumberFormat('pt-BR', {
@@ -79,7 +58,6 @@ function ImoveisPage() {
     }).format(valor)
   }
 
-  // Estatísticas calculadas a partir dos dados já carregados (sem nova chamada à API)
   const totalResidencial = imoveis.filter((i) => i.tipo === 'RESIDENCIAL').length
   const totalComercial = imoveis.filter((i) => i.tipo === 'COMERCIAL').length
   const valorPortfolio = imoveis.reduce((soma, i) => soma + (i.valorCompra || 0), 0)
@@ -87,7 +65,6 @@ function ImoveisPage() {
   return (
     <div className="container">
 
-      {/* Toast de feedback — aparece no canto inferior direito */}
       {toast && (
         <Toast
           mensagem={toast.mensagem}
@@ -96,10 +73,8 @@ function ImoveisPage() {
         />
       )}
 
-      {/* Navegação: Início > Imóveis */}
       <Breadcrumb pagina="Imóveis" />
 
-      {/* Cabeçalho da seção com botão novo imóvel */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 className="mb-0">
           <i className="bi bi-house-door me-2 text-primary"></i>
@@ -111,7 +86,6 @@ function ImoveisPage() {
         </Link>
       </div>
 
-      {/* Cards de resumo — só aparecem quando há imóveis carregados */}
       {!carregando && !erro && imoveis.length > 0 && (
         <div className="row g-2 mb-3">
           <div className="col-6 col-md-3">
@@ -143,7 +117,6 @@ function ImoveisPage() {
         </div>
       )}
 
-      {/* Spinner de carregamento */}
       {carregando && (
         <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status">
@@ -153,7 +126,6 @@ function ImoveisPage() {
         </div>
       )}
 
-      {/* Mensagem de erro */}
       {erro && (
         <div className="alert alert-danger" role="alert">
           <i className="bi bi-exclamation-triangle me-2"></i>
@@ -167,10 +139,8 @@ function ImoveisPage() {
         </div>
       )}
 
-      {/* Tabela de imóveis (só aparece quando não está carregando) */}
       {!carregando && !erro && (
         <>
-          {/* Mensagem quando não há imóveis */}
           {imoveis.length === 0 ? (
             <div className="text-center py-5 text-muted">
               <i className="bi bi-house-x display-1 text-primary"></i>
@@ -180,7 +150,6 @@ function ImoveisPage() {
               </Link>
             </div>
           ) : (
-            /* Tabela responsiva com os imóveis */
             <div className="table-responsive">
               <table className="table table-hover align-middle bg-white rounded">
                 <thead className="table-dark">
@@ -193,25 +162,21 @@ function ImoveisPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Renderiza uma linha para cada imóvel */}
                   {imoveis.map((imovel) => (
                     <tr key={imovel.id}>
                       <td>
                         <span className="fw-semibold">{imovel.codigo}</span>
                       </td>
-                      {/* Endereço montado a partir dos campos separados do backend */}
                       <td>
                         {`${imovel.logradouro || ''}, ${imovel.numero || ''} — ${imovel.cidade || ''}/${imovel.uf || ''}`}
                       </td>
                       <td>
-                        {/* Badge colorido por tipo — campo "tipo" do ImovelResponse */}
                         <span className={`badge ${imovel.tipo === 'COMERCIAL' ? 'bg-warning text-dark' : 'badge-teal'}`}>
                           {imovel.tipo}
                         </span>
                       </td>
                       <td>{formatarMoeda(imovel.valorCompra)}</td>
                       <td>
-                        {/* Botões de ação: Ver, Editar, Excluir */}
                         <div className="d-flex gap-1 justify-content-center">
                           <Link
                             to={`/imoveis/${imovel.id}`}
@@ -240,7 +205,6 @@ function ImoveisPage() {
                   ))}
                 </tbody>
               </table>
-              {/* Contador de registros */}
               <p className="text-muted small">
                 Total: {imoveis.length} imóvel(is) cadastrado(s)
               </p>

@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Resposta completa com detalhamento fiscal para exibição no frontend.
 public record BoletoResponse(
         UUID id,
         UUID contratoId,
@@ -21,7 +20,6 @@ public record BoletoResponse(
         String regimeTributario,
         String tipoImovel
 ) {
-    // O model já tem contratoId como UUID direto.
     public static BoletoResponse from(Boleto boleto) {
         return new BoletoResponse(
                 boleto.getId(),

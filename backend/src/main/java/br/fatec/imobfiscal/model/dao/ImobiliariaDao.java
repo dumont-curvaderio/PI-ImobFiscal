@@ -13,17 +13,12 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-// DAO (Data Access Object) da Imobiliaria.
-// Substitui o antigo ImobiliariaRepository (JPA). Agora escrevemos o SQL na mão
-// e o JdbcTemplate executa contra o PostgreSQL.
 @Repository
 @RequiredArgsConstructor
 public class ImobiliariaDao {
 
-    // JdbcTemplate é a ferramenta do Spring para rodar SQL puro com segurança.
     private final JdbcTemplate jdbcTemplate;
 
-    // Busca uma imobiliária pelo id (apenas se não estiver soft-deletada).
     public Optional<Imobiliaria> buscarPorId(UUID id) {
         String sql = """
                 SELECT id, cnpj, razao, nome_fantasia, email, telefone, plano,
@@ -34,12 +29,10 @@ public class ImobiliariaDao {
         try {
             return Optional.of(jdbcTemplate.queryForObject(sql, this::mapRow, id));
         } catch (EmptyResultDataAccessException e) {
-            // Nenhuma linha encontrada — devolvemos Optional vazio
             return Optional.empty();
         }
     }
 
-    // Converte uma linha do ResultSet em um objeto Imobiliaria (model).
     private Imobiliaria mapRow(ResultSet rs, int rowNum) throws SQLException {
         Imobiliaria i = new Imobiliaria();
         i.setId(rs.getObject("id", UUID.class));

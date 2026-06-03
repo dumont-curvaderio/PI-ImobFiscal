@@ -21,7 +21,6 @@ public record NotaFiscalResponse(
         Integer tentativas,
         String erroSefaz
 ) {
-    // O model já tem contratoId como UUID direto.
     public static NotaFiscalResponse from(NotaFiscal nf) {
         return new NotaFiscalResponse(
                 nf.getId(),

@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-// DAO da NotaFiscal — leitura, criação e troca de status com SQL puro.
 @Repository
 @RequiredArgsConstructor
 public class NotaFiscalDao {
@@ -36,7 +35,6 @@ public class NotaFiscalDao {
         return jdbcTemplate.query(sql, this::mapRow, imobiliariaId);
     }
 
-    // Lista todas as notas de um contrato (já filtrado por imobiliária no controller).
     public List<NotaFiscal> listarPorContrato(UUID contratoId) {
         String sql = "SELECT " + COLUNAS + """
                 FROM notas_fiscais
@@ -93,7 +91,6 @@ public class NotaFiscalDao {
         return nf;
     }
 
-    // Atualiza apenas o status (ex: AGUARDANDO → AUTORIZADA).
     public void atualizarStatus(UUID imobiliariaId, UUID id, StatusNFe novoStatus) {
         LocalDateTime agora = LocalDateTime.now();
         String sql = """

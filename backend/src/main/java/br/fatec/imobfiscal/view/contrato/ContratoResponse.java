@@ -23,7 +23,6 @@ public record ContratoResponse(
         LocalDate dataFim,
         Integer prazoMeses
 ) {
-    // O model já tem imovelId como UUID direto.
     public static ContratoResponse from(ContratoLocacao contrato) {
         return new ContratoResponse(
                 contrato.getId(),

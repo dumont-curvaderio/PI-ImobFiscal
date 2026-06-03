@@ -10,10 +10,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
-// Motor Tributário — calcula IBS/CBS conforme a Reforma Tributária (LC 214/2025).
-// No padrão MVC sem service, a lógica de negócio fiscal vive aqui, no model,
-// como um @Component que o controller injeta. Busca as alíquotas do banco
-// (NUNCA hardcoda valores).
 @Component
 @RequiredArgsConstructor
 public class MotorTributario {
@@ -23,7 +19,6 @@ public class MotorTributario {
     public ResultadoCalculoDTO calcular(CalculoRequest request) {
         int anoVigente = LocalDate.now().getYear();
 
-        // Busca alíquota do banco — NUNCA hardcodar alíquotas no código (RN-003).
         AliquotaVigente aliquota = aliquotaVigenteDao
                 .buscarVigente(request.regime(), request.tipoImovel(), anoVigente)
                 .orElseThrow(() -> new RuntimeException(
@@ -33,7 +28,6 @@ public class MotorTributario {
 
         BigDecimal valorBase = request.valorBase();
 
-        // Cálculo IBS e CBS (scale 4 para precisão fiscal).
         BigDecimal valorIbs = valorBase
                 .multiply(aliquota.getAliquotaIbs())
                 .setScale(4, RoundingMode.HALF_UP);
@@ -42,7 +36,6 @@ public class MotorTributario {
                 .multiply(aliquota.getAliquotaCbs())
                 .setScale(4, RoundingMode.HALF_UP);
 
-        // Valor líquido que o locador recebe após o Split Payment (scale 2).
         BigDecimal valorLiquido = valorBase
                 .subtract(valorIbs)
                 .subtract(valorCbs)
@@ -57,7 +50,7 @@ public class MotorTributario {
                 valorIbs,
                 valorCbs,
                 valorLiquido,
-                true  // splitPaymentRequerido = true a partir de 2026
+                true
         );
     }
 }

@@ -13,17 +13,12 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-// DAO das alíquotas vigentes.
-// REGRA CRÍTICA (RN do projeto): NUNCA hardcodar alíquotas. Sempre buscar aqui,
-// filtrando por regime + tipo de imóvel + ano de vigência.
 @Repository
 @RequiredArgsConstructor
 public class AliquotaVigenteDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    // Busca a alíquota vigente para o trio (regime, tipoImovel, ano).
-    // Devolve Optional vazio se não existir — quem chama decide o que fazer.
     public Optional<AliquotaVigente> buscarVigente(String regime, String tipoImovel, int ano) {
         String sql = """
                 SELECT id, regime, tipo_imovel, aliquota_ibs, aliquota_cbs,

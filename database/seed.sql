@@ -1,14 +1,4 @@
--- ImobFiscal — Dados de Exemplo (Seed)
--- PI 2 · FATEC DSM 2026-2
--- Executar após schema.sql: psql -U postgres -d imobfiscal -f database/seed.sql
---
--- UUID da imobiliária demo é FIXO ('11111111-...') — referenciado pelo frontend
-
--- ============================================================
--- IMOBILIARIAS
--- UUID fixo: '11111111-1111-1111-1111-111111111111'
--- Usado como tenant padrão em todos os registros abaixo
--- ============================================================
+-- Imobiliaria demo
 INSERT INTO imobiliarias (id, cnpj, razao, nome_fantasia, email, telefone, plano)
 VALUES (
     '11111111-1111-1111-1111-111111111111',
@@ -20,11 +10,7 @@ VALUES (
     'PROFISSIONAL'
 );
 
--- ============================================================
--- USUARIOS
--- Usuário administrador da imobiliária demo
--- Senha: admin123 (hash BCrypt gerado pelo sistema)
--- ============================================================
+-- Usuario admin
 INSERT INTO usuarios (id, imobiliaria_id, email, senha, nome, perfil)
 VALUES (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -35,10 +21,7 @@ VALUES (
     'ADMIN'
 );
 
--- ============================================================
--- LOCADORES
--- Dois proprietários: uma PF e uma PJ
--- ============================================================
+-- Locadores
 INSERT INTO locadores (id, imobiliaria_id, tipo_pessoa, cpf_cnpj, nome, email, telefone)
 VALUES
 (
@@ -60,10 +43,7 @@ VALUES
     '(11) 3333-4444'
 );
 
--- ============================================================
--- IMOVEIS
--- Três imóveis: dois do locador PF, um do locador PJ
--- ============================================================
+-- Imoveis
 INSERT INTO imoveis (
     id, imobiliaria_id, locador_id, codigo, tipo,
     cep, logradouro, numero, complemento, bairro, cidade, uf,
@@ -102,10 +82,7 @@ VALUES
     800000.00, '2018-11-10'
 );
 
--- ============================================================
--- CONTRATOS_LOCACAO
--- Um contrato ativo por imóvel residencial
--- ============================================================
+-- Contratos
 INSERT INTO contratos_locacao (
     id, imobiliaria_id, imovel_id,
     tipo_locacao, status,
@@ -125,12 +102,7 @@ VALUES
     '2026-01-01', NULL, 30
 );
 
--- ============================================================
--- NOTAS_FISCAIS
--- Uma NF autorizada para o contrato acima
--- Alíquotas 2026: IBS 0,1% | CBS 0,9% (fase informativa — RN-003)
--- recolhimento_obrigatorio = false até 2027
--- ============================================================
+-- Notas fiscais
 INSERT INTO notas_fiscais (
     id, imobiliaria_id, contrato_id,
     numero, serie, chave_acesso,
@@ -147,8 +119,8 @@ VALUES
     '35260112345678000195550010000000011000000014',
     'AUTORIZADA',
     1800.00,
-    1.80,   -- IBS: 0,1% de 1800,00
-    16.20,  -- CBS: 0,9% de 1800,00
+    1.80,
+    16.20,
     FALSE,
     1
 );

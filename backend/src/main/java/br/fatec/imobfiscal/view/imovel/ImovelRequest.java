@@ -9,9 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Dados enviados pelo cliente para criar ou atualizar um imóvel.
 public record ImovelRequest(
-        // Locador é opcional — o imóvel pode ser cadastrado antes de associar o proprietário
         UUID locadorId,
 
         @NotBlank(message = "Código obrigatório")

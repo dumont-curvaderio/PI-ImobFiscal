@@ -42,7 +42,6 @@ function DashboardPage() {
   return (
     <div className="container py-4">
 
-      {/* Cabeçalho */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h4 className="mb-0">
@@ -64,7 +63,6 @@ function DashboardPage() {
         </div>
       ) : (
         <>
-          {/* Cards de resumo */}
           <div className="row g-3 mb-4">
 
             <div className="col-sm-6 col-lg-3">
@@ -163,7 +161,6 @@ function DashboardPage() {
 
           </div>
 
-          {/* Segunda linha: ações rápidas + últimos imóveis */}
           <div className="row g-3">
 
             <div className="col-md-4">

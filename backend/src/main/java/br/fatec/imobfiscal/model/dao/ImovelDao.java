@@ -15,22 +15,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-// DAO do Imovel — CRUD completo com SQL puro.
-// Multi-tenancy e soft delete são aplicados direto no SQL.
 @Repository
 @RequiredArgsConstructor
 public class ImovelDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    // Colunas reutilizadas nos SELECT (evita repetir a lista grande).
     private static final String COLUNAS = """
             id, imobiliaria_id, locador_id, codigo, tipo, cep, logradouro, numero,
             complemento, bairro, cidade, uf, area_total, quartos, vagas,
             valor_compra, data_compra, valor_venal, created_at, updated_at, deleted_at
             """;
 
-    // Lista todos os imóveis ativos de uma imobiliária.
     public List<Imovel> listar(UUID imobiliariaId) {
         String sql = "SELECT " + COLUNAS + """
                 FROM imoveis
@@ -40,7 +36,6 @@ public class ImovelDao {
         return jdbcTemplate.query(sql, this::mapRow, imobiliariaId);
     }
 
-    // Busca um imóvel garantindo que pertence à imobiliária (multi-tenancy).
     public Imovel buscar(UUID imobiliariaId, UUID id) {
         String sql = "SELECT " + COLUNAS + """
                 FROM imoveis
@@ -49,12 +44,10 @@ public class ImovelDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRow, id, imobiliariaId);
         } catch (EmptyResultDataAccessException e) {
-            // Mantém a mensagem original "Imóvel não encontrado".
             throw new RuntimeException("Imóvel não encontrado");
         }
     }
 
-    // Insere um novo imóvel. id e datas gerados em Java.
     public Imovel inserir(Imovel imovel) {
         imovel.setId(UUID.randomUUID());
         LocalDateTime agora = LocalDateTime.now();
@@ -92,7 +85,6 @@ public class ImovelDao {
         return imovel;
     }
 
-    // Atualiza os dados de um imóvel existente.
     public Imovel atualizar(Imovel imovel) {
         imovel.setUpdatedAt(LocalDateTime.now());
 
@@ -127,8 +119,6 @@ public class ImovelDao {
         return imovel;
     }
 
-    // Soft delete: preenche deleted_at via UPDATE.
-    // NUNCA usamos DELETE físico — regra fiscal de guarda de 5 anos.
     public void softDelete(UUID imobiliariaId, UUID id) {
         LocalDateTime agora = LocalDateTime.now();
         String sql = """

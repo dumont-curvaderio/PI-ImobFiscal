@@ -22,7 +22,6 @@ public class NotaFiscalController {
     private final NotaFiscalDao notaFiscalDao;
     private final ContratoDao contratoDao;
 
-    // GET /api/imobiliarias/{imobiliariaId}/notas-fiscais
     @GetMapping
     public ResponseEntity<List<NotaFiscalResponse>> listar(@PathVariable UUID imobiliariaId) {
         List<NotaFiscalResponse> resposta = notaFiscalDao.listar(imobiliariaId)
@@ -32,12 +31,10 @@ public class NotaFiscalController {
         return ResponseEntity.ok(resposta);
     }
 
-    // GET /api/imobiliarias/{imobiliariaId}/notas-fiscais/por-contrato/{contratoId}
     @GetMapping("/por-contrato/{contratoId}")
     public ResponseEntity<List<NotaFiscalResponse>> listarPorContrato(
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID contratoId) {
-        // Verifica se o contrato pertence à imobiliária antes de listar.
         contratoDao.buscar(imobiliariaId, contratoId);
 
         List<NotaFiscalResponse> resposta = notaFiscalDao.listarPorContrato(contratoId)
@@ -47,7 +44,6 @@ public class NotaFiscalController {
         return ResponseEntity.ok(resposta);
     }
 
-    // GET /api/imobiliarias/{imobiliariaId}/notas-fiscais/{id}
     @GetMapping("/{id}")
     public ResponseEntity<NotaFiscalResponse> buscarPorId(
             @PathVariable UUID imobiliariaId,
@@ -55,26 +51,20 @@ public class NotaFiscalController {
         return ResponseEntity.ok(NotaFiscalResponse.from(notaFiscalDao.buscar(imobiliariaId, id)));
     }
 
-    // POST /api/imobiliarias/{imobiliariaId}/notas-fiscais
-    // Cria a nota com status AGUARDANDO — transmissão para SEFAZ é assíncrona.
     @PostMapping
     public ResponseEntity<NotaFiscalResponse> criar(
             @PathVariable UUID imobiliariaId,
             @Valid @RequestBody NotaFiscalRequest request) {
-        // Garante que o contrato existe e é da imobiliária.
         contratoDao.buscar(imobiliariaId, request.contratoId());
 
         NotaFiscal nf = new NotaFiscal();
         nf.setImobiliariaId(imobiliariaId);
         nf.setContratoId(request.contratoId());
         nf.setValorServico(request.valorServico());
-        // IBS e CBS são informativos em 2026 (recolhimento obrigatório a partir de 2027).
-
         NotaFiscalResponse response = NotaFiscalResponse.from(notaFiscalDao.inserir(nf));
         return ResponseEntity.status(201).body(response);
     }
 
-    // PATCH /api/imobiliarias/{imobiliariaId}/notas-fiscais/{id}/status?status=AUTORIZADA
     @PatchMapping("/{id}/status")
     public ResponseEntity<NotaFiscalResponse> atualizarStatus(
             @PathVariable UUID imobiliariaId,

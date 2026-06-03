@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-// DAO do Boleto (UC-003) — leitura e criação com SQL puro.
 @Repository
 @RequiredArgsConstructor
 public class BoletoDao {
@@ -44,7 +43,6 @@ public class BoletoDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRow, id, imobiliariaId);
         } catch (EmptyResultDataAccessException e) {
-            // Preserva a mensagem original do BoletoService antigo.
             throw new RuntimeException("Boleto não encontrado: " + id);
         }
     }

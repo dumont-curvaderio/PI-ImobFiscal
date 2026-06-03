@@ -57,7 +57,6 @@ public class LocadorController {
             @PathVariable UUID imobiliariaId,
             @PathVariable UUID id,
             @Valid @RequestBody LocadorRequest request) {
-        // Confirma que existe e pertence à imobiliária antes de atualizar.
         Locador locador = locadorDao.buscar(imobiliariaId, id);
         locador.setTipoPessoa(request.tipoPessoa());
         locador.setCpfCnpj(request.cpfCnpj());
