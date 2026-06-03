@@ -1,4 +1,4 @@
-package br.fatec.imobfiscal.view.notafiscal;
+package br.fatec.imobfiscal.model;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

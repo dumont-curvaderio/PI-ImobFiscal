@@ -1,4 +1,4 @@
-package br.fatec.imobfiscal.view.imovel;
+package br.fatec.imobfiscal.model;
 
 import br.fatec.imobfiscal.enums.TipoImovel;
 import jakarta.validation.constraints.NotBlank;

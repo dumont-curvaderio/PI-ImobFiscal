@@ -1,9 +1,8 @@
-package br.fatec.imobfiscal.view.contrato;
+package br.fatec.imobfiscal.model;
 
 import br.fatec.imobfiscal.enums.StatusContrato;
 import br.fatec.imobfiscal.enums.TipoLocacao;
 import br.fatec.imobfiscal.enums.TipoPessoa;
-import br.fatec.imobfiscal.model.ContratoLocacao;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

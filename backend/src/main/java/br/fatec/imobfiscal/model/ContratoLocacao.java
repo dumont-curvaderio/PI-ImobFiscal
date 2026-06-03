@@ -19,10 +19,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ContratoLocacao extends BaseModel {
 
-    @Column(name = "imobiliaria_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "imobiliaria_id", nullable = false)
     private UUID imobiliariaId;
 
-    @Column(name = "imovel_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "imovel_id", nullable = false)
     private UUID imovelId;
 
     @Enumerated(EnumType.STRING)

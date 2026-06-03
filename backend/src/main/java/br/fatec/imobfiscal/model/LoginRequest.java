@@ -1,4 +1,4 @@
-package br.fatec.imobfiscal.view.auth;
+package br.fatec.imobfiscal.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

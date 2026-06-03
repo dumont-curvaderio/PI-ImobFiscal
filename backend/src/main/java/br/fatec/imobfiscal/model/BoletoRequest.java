@@ -1,4 +1,4 @@
-package br.fatec.imobfiscal.view.boleto;
+package br.fatec.imobfiscal.model;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;

@@ -2,8 +2,8 @@ package br.fatec.imobfiscal.controller;
 
 import br.fatec.imobfiscal.enums.StatusContrato;
 import br.fatec.imobfiscal.service.ContratoService;
-import br.fatec.imobfiscal.view.contrato.ContratoRequest;
-import br.fatec.imobfiscal.view.contrato.ContratoResponse;
+import br.fatec.imobfiscal.model.ContratoRequest;
+import br.fatec.imobfiscal.model.ContratoResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package br.fatec.imobfiscal.view.motor;
+package br.fatec.imobfiscal.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,8 +1,8 @@
 package br.fatec.imobfiscal.controller;
 
 import br.fatec.imobfiscal.service.BoletoService;
-import br.fatec.imobfiscal.view.boleto.BoletoRequest;
-import br.fatec.imobfiscal.view.boleto.BoletoResponse;
+import br.fatec.imobfiscal.model.BoletoRequest;
+import br.fatec.imobfiscal.model.BoletoResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

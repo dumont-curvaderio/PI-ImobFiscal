@@ -2,7 +2,7 @@ package br.fatec.imobfiscal.service;
 
 import br.fatec.imobfiscal.model.Locador;
 import br.fatec.imobfiscal.repository.LocadorRepository;
-import br.fatec.imobfiscal.view.locador.LocadorRequest;
+import br.fatec.imobfiscal.model.LocadorRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

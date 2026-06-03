@@ -3,7 +3,7 @@ package br.fatec.imobfiscal.service;
 import br.fatec.imobfiscal.enums.StatusNFe;
 import br.fatec.imobfiscal.model.NotaFiscal;
 import br.fatec.imobfiscal.repository.NotaFiscalRepository;
-import br.fatec.imobfiscal.view.notafiscal.NotaFiscalRequest;
+import br.fatec.imobfiscal.model.NotaFiscalRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

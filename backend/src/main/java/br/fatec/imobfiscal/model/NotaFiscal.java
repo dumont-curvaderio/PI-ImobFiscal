@@ -16,10 +16,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class NotaFiscal extends BaseModel {
 
-    @Column(name = "imobiliaria_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "imobiliaria_id", nullable = false)
     private UUID imobiliariaId;
 
-    @Column(name = "contrato_id", columnDefinition = "uuid")
+    @Column(name = "contrato_id")
     private UUID contratoId;
 
     private String numero;

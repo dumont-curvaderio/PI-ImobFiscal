@@ -16,10 +16,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Boleto extends BaseModel {
 
-    @Column(name = "imobiliaria_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "imobiliaria_id", nullable = false)
     private UUID imobiliariaId;
 
-    @Column(name = "contrato_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "contrato_id", nullable = false)
     private UUID contratoId;
 
     @Column(name = "valor_aluguel", precision = 15, scale = 2)

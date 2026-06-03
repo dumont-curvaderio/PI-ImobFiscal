@@ -1,8 +1,7 @@
-package br.fatec.imobfiscal.view.locador;
+package br.fatec.imobfiscal.model;
 
 import br.fatec.imobfiscal.enums.RegimeTributario;
 import br.fatec.imobfiscal.enums.TipoPessoa;
-import br.fatec.imobfiscal.model.Locador;
 
 import java.util.UUID;
 

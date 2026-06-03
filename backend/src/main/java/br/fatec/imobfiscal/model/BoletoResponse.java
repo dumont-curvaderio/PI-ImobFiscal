@@ -1,6 +1,5 @@
-package br.fatec.imobfiscal.view.boleto;
+package br.fatec.imobfiscal.model;
 
-import br.fatec.imobfiscal.model.Boleto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;

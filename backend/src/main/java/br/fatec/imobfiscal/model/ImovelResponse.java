@@ -1,7 +1,6 @@
-package br.fatec.imobfiscal.view.imovel;
+package br.fatec.imobfiscal.model;
 
 import br.fatec.imobfiscal.enums.TipoImovel;
-import br.fatec.imobfiscal.model.Imovel;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

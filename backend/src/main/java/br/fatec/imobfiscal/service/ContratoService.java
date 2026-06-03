@@ -3,7 +3,7 @@ package br.fatec.imobfiscal.service;
 import br.fatec.imobfiscal.enums.StatusContrato;
 import br.fatec.imobfiscal.model.ContratoLocacao;
 import br.fatec.imobfiscal.repository.ContratoRepository;
-import br.fatec.imobfiscal.view.contrato.ContratoRequest;
+import br.fatec.imobfiscal.model.ContratoRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

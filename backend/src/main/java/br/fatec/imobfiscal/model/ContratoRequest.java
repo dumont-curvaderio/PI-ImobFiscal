@@ -1,4 +1,4 @@
-package br.fatec.imobfiscal.view.contrato;
+package br.fatec.imobfiscal.model;
 
 import br.fatec.imobfiscal.enums.TipoLocacao;
 import br.fatec.imobfiscal.enums.TipoPessoa;

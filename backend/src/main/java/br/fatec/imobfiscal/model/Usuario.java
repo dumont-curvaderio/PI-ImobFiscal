@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Usuario extends BaseModel {
 
-    @Column(name = "imobiliaria_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "imobiliaria_id", nullable = false)
     private UUID imobiliariaId;
 
     @Column(nullable = false, unique = true)

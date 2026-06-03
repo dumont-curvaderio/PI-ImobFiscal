@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Locador extends BaseModel {
 
-    @Column(name = "imobiliaria_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "imobiliaria_id", nullable = false)
     private UUID imobiliariaId;
 
     @Enumerated(EnumType.STRING)

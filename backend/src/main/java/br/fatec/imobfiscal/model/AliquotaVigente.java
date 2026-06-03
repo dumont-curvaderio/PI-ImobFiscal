@@ -18,7 +18,6 @@ public class AliquotaVigente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "uuid")
     private UUID id;
 
     @Column(nullable = false, length = 30)

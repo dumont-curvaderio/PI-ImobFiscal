@@ -2,8 +2,8 @@ package br.fatec.imobfiscal.controller;
 
 import br.fatec.imobfiscal.enums.StatusNFe;
 import br.fatec.imobfiscal.service.NotaFiscalService;
-import br.fatec.imobfiscal.view.notafiscal.NotaFiscalRequest;
-import br.fatec.imobfiscal.view.notafiscal.NotaFiscalResponse;
+import br.fatec.imobfiscal.model.NotaFiscalRequest;
+import br.fatec.imobfiscal.model.NotaFiscalResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

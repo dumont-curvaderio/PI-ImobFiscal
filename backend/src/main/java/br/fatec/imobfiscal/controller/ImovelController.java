@@ -1,8 +1,8 @@
 package br.fatec.imobfiscal.controller;
 
 import br.fatec.imobfiscal.service.ImovelService;
-import br.fatec.imobfiscal.view.imovel.ImovelRequest;
-import br.fatec.imobfiscal.view.imovel.ImovelResponse;
+import br.fatec.imobfiscal.model.ImovelRequest;
+import br.fatec.imobfiscal.model.ImovelResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,6 @@
-package br.fatec.imobfiscal.view.notafiscal;
+package br.fatec.imobfiscal.model;
 
 import br.fatec.imobfiscal.enums.StatusNFe;
-import br.fatec.imobfiscal.model.NotaFiscal;
 
 import java.math.BigDecimal;
 import java.util.UUID;

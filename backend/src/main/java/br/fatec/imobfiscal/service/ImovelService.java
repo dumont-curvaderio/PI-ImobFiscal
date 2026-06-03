@@ -2,7 +2,7 @@ package br.fatec.imobfiscal.service;
 
 import br.fatec.imobfiscal.model.Imovel;
 import br.fatec.imobfiscal.repository.ImovelRepository;
-import br.fatec.imobfiscal.view.imovel.ImovelRequest;
+import br.fatec.imobfiscal.model.ImovelRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

@@ -14,7 +14,6 @@ public abstract class BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "uuid")
     private UUID id;
 
     @Column(name = "created_at", nullable = false, updatable = false)

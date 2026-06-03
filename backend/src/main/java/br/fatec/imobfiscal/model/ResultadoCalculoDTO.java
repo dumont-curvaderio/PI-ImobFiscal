@@ -1,4 +1,4 @@
-package br.fatec.imobfiscal.view.motor;
+package br.fatec.imobfiscal.model;
 
 import java.math.BigDecimal;
 

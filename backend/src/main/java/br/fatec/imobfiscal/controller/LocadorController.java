@@ -1,8 +1,8 @@
 package br.fatec.imobfiscal.controller;
 
 import br.fatec.imobfiscal.service.LocadorService;
-import br.fatec.imobfiscal.view.locador.LocadorRequest;
-import br.fatec.imobfiscal.view.locador.LocadorResponse;
+import br.fatec.imobfiscal.model.LocadorRequest;
+import br.fatec.imobfiscal.model.LocadorResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

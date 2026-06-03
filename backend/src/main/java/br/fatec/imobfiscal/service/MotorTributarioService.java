@@ -2,8 +2,8 @@ package br.fatec.imobfiscal.service;
 
 import br.fatec.imobfiscal.model.AliquotaVigente;
 import br.fatec.imobfiscal.repository.AliquotaVigenteRepository;
-import br.fatec.imobfiscal.view.motor.CalculoRequest;
-import br.fatec.imobfiscal.view.motor.ResultadoCalculoDTO;
+import br.fatec.imobfiscal.model.CalculoRequest;
+import br.fatec.imobfiscal.model.ResultadoCalculoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
 package br.fatec.imobfiscal.controller;
 
 import br.fatec.imobfiscal.service.MotorTributarioService;
-import br.fatec.imobfiscal.view.motor.CalculoRequest;
-import br.fatec.imobfiscal.view.motor.ResultadoCalculoDTO;
+import br.fatec.imobfiscal.model.CalculoRequest;
+import br.fatec.imobfiscal.model.ResultadoCalculoDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

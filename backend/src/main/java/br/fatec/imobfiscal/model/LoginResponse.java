@@ -1,4 +1,4 @@
-package br.fatec.imobfiscal.view.auth;
+package br.fatec.imobfiscal.model;
 
 public record LoginResponse(
         String token,
