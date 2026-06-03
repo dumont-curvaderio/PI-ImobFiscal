@@ -44,8 +44,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
         Map<String, Object> corpo = new HashMap<>();
-        corpo.put("message", ex.getMessage());
+        corpo.put("message", "Erro interno do servidor");
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(corpo);
     }
 }
