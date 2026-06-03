@@ -1,7 +1,6 @@
 package br.fatec.imobfiscal.controller;
 
-import br.fatec.imobfiscal.model.GeradorBoleto;
-import br.fatec.imobfiscal.model.dao.BoletoDao;
+import br.fatec.imobfiscal.service.BoletoService;
 import br.fatec.imobfiscal.view.boleto.BoletoRequest;
 import br.fatec.imobfiscal.view.boleto.BoletoResponse;
 import jakarta.validation.Valid;
@@ -17,30 +16,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BoletoController {
 
-    private final BoletoDao boletoDao;
-    private final GeradorBoleto geradorBoleto;
+    private final BoletoService boletoService;
 
     @GetMapping
     public ResponseEntity<List<BoletoResponse>> listar(@PathVariable UUID imobiliariaId) {
-        List<BoletoResponse> resposta = boletoDao.listar(imobiliariaId)
-                .stream()
-                .map(BoletoResponse::from)
-                .toList();
-        return ResponseEntity.ok(resposta);
+        return ResponseEntity.ok(boletoService.listar(imobiliariaId).stream().map(BoletoResponse::from).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BoletoResponse> buscarPorId(
-            @PathVariable UUID imobiliariaId,
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(BoletoResponse.from(boletoDao.buscar(imobiliariaId, id)));
+    public ResponseEntity<BoletoResponse> buscarPorId(@PathVariable UUID imobiliariaId, @PathVariable UUID id) {
+        return ResponseEntity.ok(BoletoResponse.from(boletoService.buscar(imobiliariaId, id)));
     }
 
     @PostMapping("/gerar")
-    public ResponseEntity<BoletoResponse> gerar(
-            @PathVariable UUID imobiliariaId,
-            @Valid @RequestBody BoletoRequest request) {
-        BoletoResponse response = BoletoResponse.from(geradorBoleto.gerar(imobiliariaId, request));
-        return ResponseEntity.status(201).body(response);
+    public ResponseEntity<BoletoResponse> gerar(@PathVariable UUID imobiliariaId, @Valid @RequestBody BoletoRequest request) {
+        return ResponseEntity.status(201).body(BoletoResponse.from(boletoService.gerar(imobiliariaId, request)));
     }
 }

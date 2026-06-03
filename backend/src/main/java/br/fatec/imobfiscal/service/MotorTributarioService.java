@@ -1,27 +1,31 @@
-package br.fatec.imobfiscal.model;
+package br.fatec.imobfiscal.service;
 
-import br.fatec.imobfiscal.model.dao.AliquotaVigenteDao;
+import br.fatec.imobfiscal.model.AliquotaVigente;
+import br.fatec.imobfiscal.repository.AliquotaVigenteRepository;
 import br.fatec.imobfiscal.view.motor.CalculoRequest;
 import br.fatec.imobfiscal.view.motor.ResultadoCalculoDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class MotorTributario {
+public class MotorTributarioService {
 
-    private final AliquotaVigenteDao aliquotaVigenteDao;
+    private final AliquotaVigenteRepository repository;
 
     public ResultadoCalculoDTO calcular(CalculoRequest request) {
         int anoVigente = LocalDate.now().getYear();
 
-        AliquotaVigente aliquota = aliquotaVigenteDao
-                .buscarVigente(request.regime(), request.tipoImovel(), anoVigente)
-                .orElseThrow(() -> new RuntimeException(
+        AliquotaVigente aliquota = repository
+                .findByRegimeAndTipoImovelAndAnoVigencia(request.regime(), request.tipoImovel(), anoVigente)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
                         "Alíquota não encontrada para: regime=" + request.regime()
                         + ", tipo=" + request.tipoImovel()
                         + ", ano=" + anoVigente));

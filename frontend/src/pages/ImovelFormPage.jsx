@@ -302,7 +302,7 @@ function ImovelFormPage() {
                   type="text"
                   id="cep"
                   className="form-control"
-                  placeholder="00000000"
+                  placeholder="00000-000"
                   value={cep}
                   onChange={(e) => setCep(e.target.value)}
                   onBlur={(e) => buscarCep(e.target.value)}

@@ -1,7 +1,6 @@
 package br.fatec.imobfiscal.controller;
 
-import br.fatec.imobfiscal.model.Imovel;
-import br.fatec.imobfiscal.model.dao.ImovelDao;
+import br.fatec.imobfiscal.service.ImovelService;
 import br.fatec.imobfiscal.view.imovel.ImovelRequest;
 import br.fatec.imobfiscal.view.imovel.ImovelResponse;
 import jakarta.validation.Valid;
@@ -17,83 +16,31 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ImovelController {
 
-    private final ImovelDao imovelDao;
+    private final ImovelService imovelService;
 
     @GetMapping
     public ResponseEntity<List<ImovelResponse>> listar(@PathVariable UUID imobiliariaId) {
-        List<ImovelResponse> resposta = imovelDao.listar(imobiliariaId)
-                .stream()
-                .map(ImovelResponse::from)
-                .toList();
-        return ResponseEntity.ok(resposta);
+        return ResponseEntity.ok(imovelService.listar(imobiliariaId).stream().map(ImovelResponse::from).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ImovelResponse> buscarPorId(
-            @PathVariable UUID imobiliariaId,
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(ImovelResponse.from(imovelDao.buscar(imobiliariaId, id)));
+    public ResponseEntity<ImovelResponse> buscarPorId(@PathVariable UUID imobiliariaId, @PathVariable UUID id) {
+        return ResponseEntity.ok(ImovelResponse.from(imovelService.buscar(imobiliariaId, id)));
     }
 
     @PostMapping
-    public ResponseEntity<ImovelResponse> criar(
-            @PathVariable UUID imobiliariaId,
-            @Valid @RequestBody ImovelRequest request) {
-        Imovel imovel = new Imovel();
-        imovel.setImobiliariaId(imobiliariaId);
-        imovel.setLocadorId(request.locadorId());   // opcional
-        imovel.setCodigo(request.codigo());
-        imovel.setTipo(request.tipo());
-        imovel.setCep(request.cep());
-        imovel.setLogradouro(request.logradouro());
-        imovel.setNumero(request.numero());
-        imovel.setComplemento(request.complemento());
-        imovel.setBairro(request.bairro());
-        imovel.setCidade(request.cidade());
-        imovel.setUf(request.uf());
-        imovel.setAreaTotal(request.areaTotal());
-        imovel.setQuartos(request.quartos());
-        imovel.setVagas(request.vagas());
-        imovel.setValorCompra(request.valorCompra());
-        imovel.setDataCompra(request.dataCompra());
-        imovel.setValorVenal(request.valorVenal());
-
-        ImovelResponse response = ImovelResponse.from(imovelDao.inserir(imovel));
-        return ResponseEntity.status(201).body(response);
+    public ResponseEntity<ImovelResponse> criar(@PathVariable UUID imobiliariaId, @Valid @RequestBody ImovelRequest request) {
+        return ResponseEntity.status(201).body(ImovelResponse.from(imovelService.criar(imobiliariaId, request)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ImovelResponse> atualizar(
-            @PathVariable UUID imobiliariaId,
-            @PathVariable UUID id,
-            @Valid @RequestBody ImovelRequest request) {
-        Imovel imovel = imovelDao.buscar(imobiliariaId, id);
-        imovel.setLocadorId(request.locadorId());
-        imovel.setCodigo(request.codigo());
-        imovel.setTipo(request.tipo());
-        imovel.setCep(request.cep());
-        imovel.setLogradouro(request.logradouro());
-        imovel.setNumero(request.numero());
-        imovel.setComplemento(request.complemento());
-        imovel.setBairro(request.bairro());
-        imovel.setCidade(request.cidade());
-        imovel.setUf(request.uf());
-        imovel.setAreaTotal(request.areaTotal());
-        imovel.setQuartos(request.quartos());
-        imovel.setVagas(request.vagas());
-        imovel.setValorCompra(request.valorCompra());
-        imovel.setDataCompra(request.dataCompra());
-        imovel.setValorVenal(request.valorVenal());
-
-        return ResponseEntity.ok(ImovelResponse.from(imovelDao.atualizar(imovel)));
+    public ResponseEntity<ImovelResponse> atualizar(@PathVariable UUID imobiliariaId, @PathVariable UUID id, @Valid @RequestBody ImovelRequest request) {
+        return ResponseEntity.ok(ImovelResponse.from(imovelService.atualizar(imobiliariaId, id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(
-            @PathVariable UUID imobiliariaId,
-            @PathVariable UUID id) {
-        imovelDao.buscar(imobiliariaId, id);
-        imovelDao.softDelete(imobiliariaId, id);
+    public ResponseEntity<Void> deletar(@PathVariable UUID imobiliariaId, @PathVariable UUID id) {
+        imovelService.deletar(imobiliariaId, id);
         return ResponseEntity.noContent().build();
     }
 }

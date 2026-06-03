@@ -179,7 +179,7 @@ function ContratoFormPage() {
                       value={valorAluguel}
                       onChange={(e) => setValorAluguel(e.target.value)}
                       onBlur={handleValorBlur}
-                      placeholder="3000.00"
+                      placeholder="Ex: 1500.00"
                       required
                     />
                     <div className="form-text">Preencha para ver o cálculo fiscal</div>

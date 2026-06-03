@@ -1,9 +1,7 @@
 package br.fatec.imobfiscal.controller;
 
 import br.fatec.imobfiscal.enums.StatusNFe;
-import br.fatec.imobfiscal.model.NotaFiscal;
-import br.fatec.imobfiscal.model.dao.ContratoDao;
-import br.fatec.imobfiscal.model.dao.NotaFiscalDao;
+import br.fatec.imobfiscal.service.NotaFiscalService;
 import br.fatec.imobfiscal.view.notafiscal.NotaFiscalRequest;
 import br.fatec.imobfiscal.view.notafiscal.NotaFiscalResponse;
 import jakarta.validation.Valid;
@@ -19,59 +17,30 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NotaFiscalController {
 
-    private final NotaFiscalDao notaFiscalDao;
-    private final ContratoDao contratoDao;
+    private final NotaFiscalService notaFiscalService;
 
     @GetMapping
     public ResponseEntity<List<NotaFiscalResponse>> listar(@PathVariable UUID imobiliariaId) {
-        List<NotaFiscalResponse> resposta = notaFiscalDao.listar(imobiliariaId)
-                .stream()
-                .map(NotaFiscalResponse::from)
-                .toList();
-        return ResponseEntity.ok(resposta);
+        return ResponseEntity.ok(notaFiscalService.listar(imobiliariaId).stream().map(NotaFiscalResponse::from).toList());
     }
 
     @GetMapping("/por-contrato/{contratoId}")
-    public ResponseEntity<List<NotaFiscalResponse>> listarPorContrato(
-            @PathVariable UUID imobiliariaId,
-            @PathVariable UUID contratoId) {
-        contratoDao.buscar(imobiliariaId, contratoId);
-
-        List<NotaFiscalResponse> resposta = notaFiscalDao.listarPorContrato(contratoId)
-                .stream()
-                .map(NotaFiscalResponse::from)
-                .toList();
-        return ResponseEntity.ok(resposta);
+    public ResponseEntity<List<NotaFiscalResponse>> listarPorContrato(@PathVariable UUID imobiliariaId, @PathVariable UUID contratoId) {
+        return ResponseEntity.ok(notaFiscalService.listarPorContrato(imobiliariaId, contratoId).stream().map(NotaFiscalResponse::from).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<NotaFiscalResponse> buscarPorId(
-            @PathVariable UUID imobiliariaId,
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(NotaFiscalResponse.from(notaFiscalDao.buscar(imobiliariaId, id)));
+    public ResponseEntity<NotaFiscalResponse> buscarPorId(@PathVariable UUID imobiliariaId, @PathVariable UUID id) {
+        return ResponseEntity.ok(NotaFiscalResponse.from(notaFiscalService.buscar(imobiliariaId, id)));
     }
 
     @PostMapping
-    public ResponseEntity<NotaFiscalResponse> criar(
-            @PathVariable UUID imobiliariaId,
-            @Valid @RequestBody NotaFiscalRequest request) {
-        contratoDao.buscar(imobiliariaId, request.contratoId());
-
-        NotaFiscal nf = new NotaFiscal();
-        nf.setImobiliariaId(imobiliariaId);
-        nf.setContratoId(request.contratoId());
-        nf.setValorServico(request.valorServico());
-        NotaFiscalResponse response = NotaFiscalResponse.from(notaFiscalDao.inserir(nf));
-        return ResponseEntity.status(201).body(response);
+    public ResponseEntity<NotaFiscalResponse> criar(@PathVariable UUID imobiliariaId, @Valid @RequestBody NotaFiscalRequest request) {
+        return ResponseEntity.status(201).body(NotaFiscalResponse.from(notaFiscalService.criar(imobiliariaId, request)));
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<NotaFiscalResponse> atualizarStatus(
-            @PathVariable UUID imobiliariaId,
-            @PathVariable UUID id,
-            @RequestParam StatusNFe status) {
-        notaFiscalDao.buscar(imobiliariaId, id);
-        notaFiscalDao.atualizarStatus(imobiliariaId, id, status);
-        return ResponseEntity.ok(NotaFiscalResponse.from(notaFiscalDao.buscar(imobiliariaId, id)));
+    public ResponseEntity<NotaFiscalResponse> atualizarStatus(@PathVariable UUID imobiliariaId, @PathVariable UUID id, @RequestParam StatusNFe status) {
+        return ResponseEntity.ok(NotaFiscalResponse.from(notaFiscalService.atualizarStatus(imobiliariaId, id, status)));
     }
 }
