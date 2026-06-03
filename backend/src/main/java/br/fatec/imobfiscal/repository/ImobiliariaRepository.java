@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface ImobiliariaRepository extends JpaRepository<Imobiliaria, UUID> {
     Optional<Imobiliaria> findByIdAndDeletedAtIsNull(UUID id);
+    boolean existsByCnpj(String cnpj);
 }

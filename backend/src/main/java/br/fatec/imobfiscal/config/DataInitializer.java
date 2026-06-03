@@ -2,13 +2,13 @@ package br.fatec.imobfiscal.config;
 
 import br.fatec.imobfiscal.enums.PerfilUsuario;
 import br.fatec.imobfiscal.model.AliquotaVigente;
-import br.fatec.imobfiscal.model.Imobiliaria;
 import br.fatec.imobfiscal.model.Usuario;
 import br.fatec.imobfiscal.repository.AliquotaVigenteRepository;
 import br.fatec.imobfiscal.repository.ImobiliariaRepository;
 import br.fatec.imobfiscal.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +27,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ImobiliariaRepository imobiliariaRepo;
     private final UsuarioRepository usuarioRepo;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbc;
 
     @Override
     public void run(String... args) {
@@ -36,16 +37,21 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedImobiliaria() {
-        if (imobiliariaRepo.findById(IMOBILIARIA_ID).isPresent()) return;
+        if (imobiliariaRepo.existsByCnpj("00000000000191")) return;
 
-        Imobiliaria imob = new Imobiliaria();
-        imob.setId(IMOBILIARIA_ID);
-        imob.setCnpj("00000000000191");
-        imob.setRazao("ImobFiscal Demo Ltda");
-        imob.setNomeFantasia("ImobFiscal");
-        imob.setEmail("contato@imobfiscal.com.br");
-        imob.setTelefone("(11) 99999-9999");
-        imobiliariaRepo.save(imob);
+        // JdbcTemplate garante que o UUID fixo seja respeitado
+        // (JPA @GeneratedValue(UUID) ignora UUIDs atribuídos manualmente via merge())
+        jdbc.update(
+            "INSERT INTO imobiliarias (id, cnpj, razao, nome_fantasia, email, telefone, plano, created_at, updated_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
+            IMOBILIARIA_ID.toString(),
+            "00000000000191",
+            "ImobFiscal Demo Ltda",
+            "ImobFiscal",
+            "contato@imobfiscal.com.br",
+            "(11) 99999-9999",
+            "BASICO"
+        );
     }
 
     private void seedAliquotas() {
