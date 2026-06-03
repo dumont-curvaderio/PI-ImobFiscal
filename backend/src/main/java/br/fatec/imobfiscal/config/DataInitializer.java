@@ -66,15 +66,22 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedAdmin() {
-        if (usuarioRepo.existsByEmailAndDeletedAtIsNull("admin@imobfiscal.com.br")) return;
-
-        Usuario admin = new Usuario();
-        admin.setImobiliariaId(IMOBILIARIA_ID);
-        admin.setEmail("admin@imobfiscal.com.br");
-        admin.setSenha(passwordEncoder.encode("Admin123!"));
-        admin.setNome("Admin ImobFiscal");
-        admin.setPerfil(PerfilUsuario.ADMIN);
-        usuarioRepo.save(admin);
+        usuarioRepo.findByEmailAndDeletedAtIsNull("admin@imobfiscal.com.br")
+            .ifPresentOrElse(
+                admin -> {
+                    admin.setSenha(passwordEncoder.encode("admin123"));
+                    usuarioRepo.save(admin);
+                },
+                () -> {
+                    Usuario admin = new Usuario();
+                    admin.setImobiliariaId(IMOBILIARIA_ID);
+                    admin.setEmail("admin@imobfiscal.com.br");
+                    admin.setSenha(passwordEncoder.encode("admin123"));
+                    admin.setNome("Admin ImobFiscal");
+                    admin.setPerfil(PerfilUsuario.ADMIN);
+                    usuarioRepo.save(admin);
+                }
+            );
     }
 
     private AliquotaVigente aliquota(String regime, String tipoImovel, String ibs, String cbs) {
