@@ -67,7 +67,6 @@ function CadastroPage() {
                 type="text"
                 id="nome"
                 className="form-control"
-                placeholder="Seu nome"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 required
@@ -81,7 +80,6 @@ function CadastroPage() {
                 type="email"
                 id="email"
                 className="form-control"
-                placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -94,7 +92,6 @@ function CadastroPage() {
                 type="password"
                 id="senha"
                 className="form-control"
-                placeholder="Mínimo 6 caracteres"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 minLength={6}

@@ -109,7 +109,6 @@ function LocadorFormPage() {
                   className="form-control"
                   value={cpfCnpj}
                   onChange={(e) => setCpfCnpj(e.target.value)}
-                  placeholder={tipoPessoa === 'PF' ? '000.000.000-00' : '00.000.000/0000-00'}
                   required
                 />
               </div>
@@ -119,7 +118,6 @@ function LocadorFormPage() {
                   className="form-control"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  placeholder="Nome do locador"
                   required
                 />
               </div>
@@ -130,7 +128,6 @@ function LocadorFormPage() {
                   className="form-control"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@exemplo.com"
                 />
               </div>
               <div className="col-md-3">
@@ -139,7 +136,6 @@ function LocadorFormPage() {
                   className="form-control"
                   value={telefone}
                   onChange={(e) => setTelefone(e.target.value)}
-                  placeholder="(00) 00000-0000"
                 />
               </div>
               <div className="col-md-3">

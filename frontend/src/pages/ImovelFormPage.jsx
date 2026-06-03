@@ -270,7 +270,6 @@ function ImovelFormPage() {
                   type="text"
                   id="codigo"
                   className="form-control"
-                  placeholder="Ex: IMV-001"
                   value={codigo}
                   onChange={(e) => setCodigo(e.target.value)}
                   required
@@ -303,7 +302,6 @@ function ImovelFormPage() {
                   type="text"
                   id="cep"
                   className="form-control"
-                  placeholder="00000-000"
                   value={cep}
                   onChange={(e) => setCep(e.target.value)}
                   onBlur={(e) => buscarCep(e.target.value)}
@@ -329,7 +327,6 @@ function ImovelFormPage() {
                   type="text"
                   id="logradouro"
                   className="form-control"
-                  placeholder="Ex: Rua das Flores"
                   value={logradouro}
                   onChange={(e) => setLogradouro(e.target.value)}
                   required
@@ -355,7 +352,6 @@ function ImovelFormPage() {
                   type="text"
                   id="numero"
                   className={`form-control ${semNumero ? 'bg-light text-muted' : ''}`}
-                  placeholder={semNumero ? '' : 'Ex: 100'}
                   value={numero}
                   onChange={(e) => { if (!semNumero) setNumero(e.target.value) }}
                   readOnly={semNumero}
@@ -373,7 +369,6 @@ function ImovelFormPage() {
                   type="text"
                   id="complemento"
                   className="form-control"
-                  placeholder="Apto, sala, bloco..."
                   value={complemento}
                   onChange={(e) => setComplemento(e.target.value)}
                 />
@@ -386,7 +381,6 @@ function ImovelFormPage() {
                   type="text"
                   id="bairro"
                   className="form-control"
-                  placeholder="Ex: Centro"
                   value={bairro}
                   onChange={(e) => setBairro(e.target.value)}
                   required
@@ -400,7 +394,6 @@ function ImovelFormPage() {
                   type="text"
                   id="cidade"
                   className="form-control"
-                  placeholder="Ex: Campinas"
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
                   required
@@ -414,7 +407,6 @@ function ImovelFormPage() {
                   type="text"
                   id="uf"
                   className="form-control text-uppercase"
-                  placeholder="SP"
                   value={uf}
                   onChange={(e) => setUf(e.target.value)}
                   maxLength={2}
@@ -550,7 +542,6 @@ function ImovelFormPage() {
                         type="number"
                         id="areaTotal"
                         className="form-control"
-                        placeholder="Ex: 85.5"
                         value={areaTotal}
                         onChange={(e) => setAreaTotal(e.target.value)}
                         min="0"
@@ -563,7 +554,6 @@ function ImovelFormPage() {
                         type="number"
                         id="quartos"
                         className="form-control"
-                        placeholder="Ex: 3"
                         value={quartos}
                         onChange={(e) => setQuartos(e.target.value)}
                         min="0"
@@ -576,7 +566,6 @@ function ImovelFormPage() {
                         type="number"
                         id="vagas"
                         className="form-control"
-                        placeholder="Ex: 2"
                         value={vagas}
                         onChange={(e) => setVagas(e.target.value)}
                         min="0"
@@ -592,7 +581,6 @@ function ImovelFormPage() {
                         type="number"
                         id="valorCompra"
                         className="form-control"
-                        placeholder="Ex: 250000.00"
                         value={valorCompra}
                         onChange={(e) => setValorCompra(e.target.value)}
                         min="0"
@@ -680,7 +668,6 @@ function ImovelFormPage() {
                         </label>
                         <input
                           type="text" id="modalNome" className="form-control"
-                          placeholder={novoLocadorTipoPessoa === 'PF' ? 'Ex: João da Silva' : 'Ex: Empresa Ltda'}
                           value={novoLocadorNome}
                           onChange={(e) => setNovoLocadorNome(e.target.value)}
                           autoFocus
@@ -694,7 +681,6 @@ function ImovelFormPage() {
                         </label>
                         <input
                           type="text" id="modalCpfCnpj" className="form-control"
-                          placeholder={novoLocadorTipoPessoa === 'PF' ? '000.000.000-00' : '00.000.000/0000-00'}
                           value={novoLocadorCpfCnpj}
                           onChange={(e) => setNovoLocadorCpfCnpj(e.target.value)}
                         />

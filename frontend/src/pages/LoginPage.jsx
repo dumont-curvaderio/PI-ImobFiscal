@@ -56,7 +56,6 @@ function LoginPage() {
                 type="email"
                 id="email"
                 className="form-control"
-                placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -70,7 +69,6 @@ function LoginPage() {
                 type="password"
                 id="senha"
                 className="form-control"
-                placeholder="Sua senha"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 required

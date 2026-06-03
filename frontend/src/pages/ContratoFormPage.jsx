@@ -159,11 +159,11 @@ function ContratoFormPage() {
                   </div>
                   <div className="col-md-4">
                     <label className="form-label">CPF / CNPJ <span className="text-danger">*</span></label>
-                    <input className="form-control" value={locatarioCpfCnpj} onChange={(e) => setLocatarioCpfCnpj(e.target.value)} placeholder="000.000.000-00" required />
+                    <input className="form-control" value={locatarioCpfCnpj} onChange={(e) => setLocatarioCpfCnpj(e.target.value)} required />
                   </div>
                   <div className="col-md-5">
                     <label className="form-label">Nome Completo <span className="text-danger">*</span></label>
-                    <input className="form-control" value={locatarioNome} onChange={(e) => setLocatarioNome(e.target.value)} placeholder="Nome do locatário" required />
+                    <input className="form-control" value={locatarioNome} onChange={(e) => setLocatarioNome(e.target.value)} required />
                   </div>
                 </div>
 
@@ -181,14 +181,13 @@ function ContratoFormPage() {
                       value={valorAluguel}
                       onChange={(e) => setValorAluguel(e.target.value)}
                       onBlur={handleValorBlur}
-                      placeholder="Ex: 1500.00"
                       required
                     />
                     <div className="form-text">Preencha para ver o cálculo fiscal</div>
                   </div>
                   <div className="col-md-2">
                     <label className="form-label">Dia Vencimento</label>
-                    <input type="number" min="1" max="31" className="form-control" placeholder="Ex: 10" value={diaVencimento} onChange={(e) => setDiaVencimento(e.target.value)} required />
+                    <input type="number" min="1" max="31" className="form-control" value={diaVencimento} onChange={(e) => setDiaVencimento(e.target.value)} required />
                   </div>
                   <div className="col-md-3">
                     <label className="form-label">Data Início <span className="text-danger">*</span></label>

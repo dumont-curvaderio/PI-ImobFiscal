@@ -82,7 +82,7 @@ function BoletosPage() {
             <form onSubmit={handleGerarBoleto} className="row g-3 align-items-end">
               <div className="col-md-5">
                 <label className="form-label">ID do Contrato</label>
-                <input className="form-control" value={contratoId} onChange={(e) => setContratoId(e.target.value)} placeholder="UUID do contrato" required />
+                <input className="form-control" value={contratoId} onChange={(e) => setContratoId(e.target.value)} required />
                 <div className="form-text">
                   <Link to="/contratos">Ver contratos →</Link>
                 </div>

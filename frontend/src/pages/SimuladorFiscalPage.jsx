@@ -78,7 +78,6 @@ function SimuladorFiscalPage() {
                     className="form-control form-control-lg"
                     value={valorBase}
                     onChange={(e) => setValorBase(e.target.value)}
-                    placeholder="Ex: 1500.00"
                     required
                   />
                 </div>
