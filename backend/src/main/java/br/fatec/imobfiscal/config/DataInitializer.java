@@ -39,11 +39,10 @@ public class DataInitializer implements CommandLineRunner {
     private void seedImobiliaria() {
         if (imobiliariaRepo.existsByCnpj("00000000000191")) return;
 
-        // JdbcTemplate garante que o UUID fixo seja respeitado
-        // (JPA @GeneratedValue(UUID) ignora UUIDs atribuídos manualmente via merge())
+        // UUID_TO_BIN porque Hibernate 6 + MySQL armazena UUID como binary(16)
         jdbc.update(
             "INSERT INTO imobiliarias (id, cnpj, razao, nome_fantasia, email, telefone, plano, created_at, updated_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
+            "VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, NOW(), NOW())",
             IMOBILIARIA_ID.toString(),
             "00000000000191",
             "ImobFiscal Demo Ltda",
