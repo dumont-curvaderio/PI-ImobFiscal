@@ -351,7 +351,7 @@ function ImovelFormPage() {
                 <input
                   type="text"
                   id="numero"
-                  className={`form-control ${semNumero ? 'bg-light text-muted' : ''}`}
+                  className="form-control"
                   value={numero}
                   onChange={(e) => { if (!semNumero) setNumero(e.target.value) }}
                   readOnly={semNumero}
