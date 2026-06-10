@@ -69,35 +69,24 @@ body {
   border-bottom-color: var(--cor4);
 }
 
-/* 7. Inputs, selects e textareas — fundo branco para parecerem editáveis.
-   Problema: o Bootstrap usa var(--bs-body-bg) como fundo de .form-control e
-   .form-select, e como definimos --bs-body-bg como menta clara (#E4F2E7), os
-   campos ficariam com a mesma cor da página (aparência de "somente leitura").
-
-   Também ajustamos a borda padrão: a cor Bootstrap padrão #dee2e6 tem
-   contraste baixo sobre menta e sobre branco. Usamos #5E726F (cinza-teal
-   médio), que mantém a identidade do tema mas é visível sobre ambos os fundos.
-
-   O .input-group-text (ícone de lupa, por exemplo) também precisa de fundo
-   branco para não ficar como ilha menta dentro do campo. */
+/* 7. Campos editáveis — fundo branco e borda visível */
 .form-control,
 .form-select,
 textarea.form-control,
 input.form-control,
 .input-group-text {
   background-color: #fff !important;
-  color: #1A2526 !important;        /* texto digitado bem escuro */
-  border-color: #5E726F !important; /* borda cinza-teal visível sobre menta e branco */
+  color: #1A2526 !important;
+  border-color: #5E726F !important;
 }
 
-/* Placeholder um pouco mais claro que o texto, mas ainda legível */
 .form-control::placeholder,
 .form-select::placeholder {
   color: #6B7B7B;
   opacity: 1;
 }
 
-/* Mantém fundo branco e destaca borda + sombra teal ao focar */
+/* Foco */
 .form-control:focus,
 .form-select:focus {
   background-color: #fff !important;
@@ -106,7 +95,7 @@ input.form-control,
   box-shadow: 0 0 0 0.25rem rgba(56, 115, 115, 0.25);
 }
 
-/* Autofill do navegador (Chrome/Edge pintam o fundo com amarelo) — mantém branco */
+/* Autofill do navegador */
 .form-control:-webkit-autofill,
 .form-control:-webkit-autofill:focus,
 .form-select:-webkit-autofill {
@@ -115,21 +104,17 @@ input.form-control,
   caret-color: #1A2526;
 }
 
-/* Campo realmente desabilitado/somente-leitura: cinza suave, para diferenciar
-   visualmente de um campo editável (que é branco).
-   Usamos !important pois o Bootstrap e classes utilitárias (bg-light)
-   também usam !important no background. */
+/* Desabilitado / somente-leitura */
 .form-control:disabled,
 .form-control[readonly],
 .form-select:disabled {
   background-color: #E8ECEC !important;
   color: #51605F !important;
-  border-color: #97A6A0 !important; /* borda mais suave para campos inativados */
+  border-color: #97A6A0 !important;
   cursor: not-allowed;
 }
 
-/* .form-check-input (radio e checkbox) herdam --bs-body-bg; forçamos branco
-   para que apareçam sobre a menta da página */
+/* Radio e checkbox */
 .form-check-input {
   background-color: #fff;
   border-color: #5E726F;
