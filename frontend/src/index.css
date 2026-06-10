@@ -69,11 +69,16 @@ body {
   border-bottom-color: var(--cor4);
 }
 
-/* 7. Inputs e selects — fundo branco e texto escuro para boa leitura */
+/* 7. Inputs, selects e textareas — fundo branco para parecerem editáveis.
+   Importante: o Bootstrap usa var(--bs-body-bg) como fundo do .form-control,
+   e como definimos --bs-body-bg como menta clara, os campos ficariam da cor
+   da página (dando impressão de "somente leitura"). Forçamos branco aqui. */
 .form-control,
-.form-select {
-  background-color: #fff;
-  color: #1A2526;            /* texto digitado bem escuro */
+.form-select,
+textarea.form-control,
+input.form-control {
+  background-color: #fff !important;
+  color: #1A2526 !important;   /* texto digitado bem escuro */
 }
 
 /* Placeholder um pouco mais claro, mas ainda legível */
@@ -85,10 +90,28 @@ body {
 /* Mantém fundo branco e texto escuro também ao focar */
 .form-control:focus,
 .form-select:focus {
-  background-color: #fff;
-  color: #1A2526;
+  background-color: #fff !important;
+  color: #1A2526 !important;
   border-color: #387373;
   box-shadow: 0 0 0 0.25rem rgba(56, 115, 115, 0.2);
+}
+
+/* Autofill do navegador (Chrome/Edge pintam o fundo) — mantém branco */
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:focus,
+.form-select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
+  -webkit-text-fill-color: #1A2526;
+  caret-color: #1A2526;
+}
+
+/* Campo realmente desabilitado/somente-leitura: cinza claro, para diferenciar
+   visualmente de um campo editável (que agora é branco) */
+.form-control:disabled,
+.form-control[readonly],
+.form-select:disabled {
+  background-color: #ECEFEF !important;
+  color: #51605F !important;
 }
 
 /* 8. Badge personalizado para tipo RESIDENCIAL */
