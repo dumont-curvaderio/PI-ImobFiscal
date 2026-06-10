@@ -22,7 +22,6 @@ function DashboardPage() {
         setContratos(resContratos.data)
         setBoletos(resBoletos.data)
       } catch {
-        // Silencia: listas vazias não impedem o dashboard de funcionar
       } finally {
         setCarregando(false)
       }

@@ -217,7 +217,6 @@ function ContratoFormPage() {
           </div>
         </div>
 
-        {/* Preview Fiscal */}
         <div className="col-lg-4">
           <div className="card border-0 shadow-sm h-100">
             <div className="card-body">

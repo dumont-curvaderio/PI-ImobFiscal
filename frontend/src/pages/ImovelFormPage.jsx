@@ -59,7 +59,6 @@ function ImovelFormPage() {
         setUf(dados.uf || '')
       }
     } catch {
-      // Silencia: o usuário ainda pode preencher manualmente
     } finally {
       setBuscandoCep(false)
     }
