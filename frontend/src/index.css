@@ -69,9 +69,24 @@ body {
   border-bottom-color: var(--cor4);
 }
 
-/* 7. Inputs e selects — foco na cor teal */
+/* 7. Inputs e selects — fundo branco e texto escuro para boa leitura */
+.form-control,
+.form-select {
+  background-color: #fff;
+  color: #1A2526;            /* texto digitado bem escuro */
+}
+
+/* Placeholder um pouco mais claro, mas ainda legível */
+.form-control::placeholder {
+  color: #6B7B7B;
+  opacity: 1;
+}
+
+/* Mantém fundo branco e texto escuro também ao focar */
 .form-control:focus,
 .form-select:focus {
+  background-color: #fff;
+  color: #1A2526;
   border-color: #387373;
   box-shadow: 0 0 0 0.25rem rgba(56, 115, 115, 0.2);
 }
